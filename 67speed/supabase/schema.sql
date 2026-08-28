@@ -6,6 +6,9 @@ create table if not exists public.scores (
   name text not null,
   score integer not null,
   mode text not null,
+  -- True only for the winner of a duel. Solo runs and dead heats stay false.
+  -- The MOST WINS board is counted from this column.
+  won boolean not null default false,
   created_at timestamptz not null default now(),
 
   constraint scores_name_format check (name ~ '^[A-Z]{3}$'),
@@ -26,8 +29,8 @@ revoke all on table public.scores from public;
 revoke all on table public.scores from anon;
 revoke all on table public.scores from authenticated;
 
-grant select (name, score, mode, created_at) on table public.scores to anon;
-grant insert (name, score, mode) on table public.scores to anon;
+grant select (name, score, mode, won, created_at) on table public.scores to anon;
+grant insert (name, score, mode, won) on table public.scores to anon;
 
 drop policy if exists "scores_public_read" on public.scores;
 create policy "scores_public_read"
@@ -45,6 +48,27 @@ create policy "scores_public_insert"
     name ~ '^[A-Z]{3}$'
     and score between 1 and 500
     and mode in ('solo', 'duel')
+    -- A solo run can never be a "win"; without this a crafted request could
+    -- farm the MOST WINS board without ever playing a duel.
+    and (won = false or mode = 'duel')
   );
+
+create index if not exists scores_wins_idx on public.scores (name) where won;
+
+-- MOST WINS board. Aggregated in the database so it stays correct as rows pile
+-- up. security_invoker makes the view run with the CALLER's RLS rather than the
+-- owner's, so it cannot become a way to read past the table policies above.
+drop view if exists public.win_counts;
+create view public.win_counts with (security_invoker = on) as
+  select
+    name,
+    count(*)::int as wins,
+    max(score)::int as best_score,
+    max(created_at) as last_win
+  from public.scores
+  where mode = 'duel' and won
+  group by name;
+
+grant select on public.win_counts to anon;
 
 -- There are intentionally no UPDATE or DELETE grants/policies for the browser.

@@ -25,33 +25,39 @@ function loadEnv(path: string): Record<string, string> {
 
 const env = { ...loadEnv('.env.local'), ...process.env } as Record<string, string>
 const URL_ = env.VITE_SUPABASE_URL
-const KEY = env.VITE_SUPABASE_ANON_KEY
+const PUBLISHABLE = env.VITE_SUPABASE_PUBLISHABLE_KEY
+const LEGACY_ANON = env.VITE_SUPABASE_ANON_KEY
+const KEY = PUBLISHABLE ?? LEGACY_ANON
 
 const ok = (m: string) => console.log(`  \x1b[32m✓\x1b[0m ${m}`)
 const bad = (m: string) => console.log(`  \x1b[31m✗\x1b[0m ${m}`)
 const info = (m: string) => console.log(`  \x1b[90m·\x1b[0m ${m}`)
 
-if (!URL_ || !KEY || URL_.includes('YOUR-PROJECT')) {
+if (!URL_ || !KEY) {
   console.log('\nSupabase is not configured.\n')
-  info('Create 67speed/.env.local with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.')
-  info('See CLAUDE.md section 7 for the schema, policies, and where to find them.')
+  info('Create 67speed/.env.local with VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.')
+  info('See 67speed/README.md for the full setup, schema, and policies.')
   info('The game still works without this — the board falls back to local scores.')
   process.exit(1)
 }
 
-const headers = {
+// Publishable keys (sb_publishable_*) belong in the apikey header ONLY.
+// Legacy anon keys are JWTs and additionally take Authorization: Bearer.
+// This must mirror headers() in src/lib/leaderboard.ts.
+const headers: Record<string, string> = {
   apikey: KEY,
-  Authorization: `Bearer ${KEY}`,
   'Content-Type': 'application/json',
 }
+if (!PUBLISHABLE && LEGACY_ANON) headers.Authorization = `Bearer ${LEGACY_ANON}`
 
 let failures = 0
 
-console.log(`\nChecking ${URL_}\n`)
+console.log(`\nChecking ${URL_}`)
+console.log(`Key type: ${PUBLISHABLE ? 'publishable (apikey only)' : 'legacy anon JWT (apikey + bearer)'}\n`)
 
 // 1. Read policy.
 try {
-  const res = await fetch(`${URL_}/rest/v1/scores?select=name,score,mode,created_at&order=score.desc&limit=10`, {
+  const res = await fetch(`${URL_}/rest/v1/scores?select=name,score,mode,won,created_at&order=score.desc&limit=10`, {
     headers,
   })
   if (res.ok) {
@@ -89,18 +95,36 @@ try {
   bad(`constraint check failed — ${(err as Error).message}`)
 }
 
+// 3. The MOST WINS board reads a view; a missing view is a silent empty board.
+try {
+  const res = await fetch(`${URL_}/rest/v1/win_counts?select=name,wins,best_score&limit=5`, {
+    headers,
+  })
+  if (res.ok) {
+    const rows = (await res.json()) as unknown[]
+    ok(`win_counts view works — ${rows.length} name(s) with duel wins`)
+  } else {
+    failures++
+    bad(`win_counts view unreadable (${res.status}) — MOST WINS will show empty`)
+    info('Re-run supabase/schema.sql; it creates the view and grants select on it.')
+  }
+} catch (err) {
+  failures++
+  bad(`win_counts check failed — ${(err as Error).message}`)
+}
+
 if (process.argv.includes('--write')) {
-  // 3. Insert policy.
+  // 4. Insert policy.
   let inserted = false
   try {
     const res = await fetch(`${URL_}/rest/v1/scores`, {
       method: 'POST',
       headers: { ...headers, Prefer: 'return=minimal' },
-      body: JSON.stringify({ name: 'TST', score: 0, mode: 'solo' }),
+      body: JSON.stringify({ name: 'TST', score: 1, mode: 'solo' }),
     })
     if (res.ok) {
       inserted = true
-      ok('insert works (added a score of 0 named TST)')
+      ok('insert works (added a score of 1 named TST)')
     } else {
       failures++
       bad(`insert failed (${res.status}) — check the "public insert" policy`)
@@ -110,7 +134,7 @@ if (process.argv.includes('--write')) {
     bad(`insert failed — ${(err as Error).message}`)
   }
 
-  // 4. Delete MUST be refused. This is the security property that matters.
+  // 5. Delete MUST be refused. This is the security property that matters.
   try {
     const res = await fetch(`${URL_}/rest/v1/scores?name=eq.TST`, { method: 'DELETE', headers })
     const body = await res.text()

@@ -78,6 +78,9 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
               won: !tie && playerIndex === winnerIndex,
               reason: 'duel' as const,
             }))
+            // A zero-rep player has nothing to record, and the database's
+            // insert policy requires score >= 1 anyway.
+            .filter((c) => c.score >= 1)
             .sort((a, b) => b.score - a.score),
         )
         return
