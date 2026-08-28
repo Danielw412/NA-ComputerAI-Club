@@ -75,31 +75,36 @@ VITE_SUPABASE_URL=https://<project-ref>.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 ```
 
-In Cloudflare Pages, open **Settings > Variables and Secrets** and add both values for the production environment. Add them to preview deployments too if you want PR/branch previews to use the shared leaderboard.
+In Cloudflare Pages, open **Settings > Variables and Secrets** and add both values for the production environment. Add the same values to preview deployments while testing the deployment PR.
 
 These are build-time Vite variables. After adding or changing them, trigger a new deployment.
 
 The publishable key is intentionally exposed to the browser. Security comes from Supabase RLS. Never put a Supabase secret key or service-role key in a `VITE_*` variable.
 
-## 4. Test the `pages.dev` deployment first
+## 4. Test the deployment PR before merging
 
-Before connecting the custom domain, test the generated Cloudflare `*.pages.dev` URL.
+The Cloudflare deployment changes are prepared on the `cloudflare-pages-67speed` branch. Keep `main` as the Pages production branch.
 
-Verify all of the following:
+After Git integration is connected, use the Cloudflare preview deployment for `cloudflare-pages-67speed` / PR #1 to test the final build before merging it. Cloudflare preview deployments do not replace the production deployment.
 
-1. The home screen loads with the correct logo and font.
-2. Starting a game prompts for camera permission over HTTPS.
-3. The camera preview appears after permission is granted.
-4. Pose tracking starts without a model or WASM loading error.
-5. Solo mode counts repetitions and finishes normally.
-6. Duel mode detects two players and keeps separate scores.
-7. Submitting a leaderboard score succeeds.
-8. Reloading the page still shows the shared Supabase leaderboard entry.
-9. The browser console has no 401/403 errors from Supabase.
+Verify all of the following on the preview URL:
+
+1. The build completes successfully.
+2. The home screen loads with the correct logo and font.
+3. Starting a game prompts for camera permission over HTTPS.
+4. The camera preview appears after permission is granted.
+5. Pose tracking starts without a model or WASM loading error.
+6. Solo mode counts repetitions and finishes normally.
+7. Duel mode detects two players and keeps separate scores.
+8. Submitting a leaderboard score succeeds.
+9. Reloading the page still shows the shared Supabase leaderboard entry.
+10. The browser console has no 401/403 errors from Supabase.
+
+Only merge PR #1 after the preview passes these checks. Once merged, Cloudflare will automatically rebuild the `main` production deployment.
 
 ## 5. Connect `67.naclubs.net`
 
-After the `pages.dev` deployment passes the checks above:
+After the merged `main` deployment passes the same checks on its `*.pages.dev` URL:
 
 1. Open the Pages project in Cloudflare.
 2. Go to **Custom domains**.
@@ -131,6 +136,6 @@ The database rejects malformed names/modes/scores and blocks browser updates/del
 
 - `.node-version` — pins the Pages Node version.
 - `.env.example` — documents required production environment variables.
-- `supabase/schema.sql` — creates the leaderboard table, index, grants, and RLS policies.
+- `supabase/schema.sql` — creates the leaderboard table, index, grants, constraints, and RLS policies.
 - `public/models/pose_landmarker_lite.task` — vendored pose model.
 - `public/mediapipe/wasm/` — vendored MediaPipe runtime.
