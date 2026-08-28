@@ -80,7 +80,7 @@ function evaluateGate(mode: GameMode, frame: GameFrame): { ok: boolean; hint: st
   const [a, b] = valid
   const leftOk = a.screenX < 0.5
   const rightOk = b.screenX >= 0.5
-  if (!leftOk || !rightOk) return { ok: false, hint: 'P1 STEP LEFT / P2 STEP RIGHT' }
+  if (!leftOk || !rightOk) return { ok: false, hint: 'P1 STAY LEFT · P2 STAY RIGHT' }
   if (!a.left.usable || !a.right.usable || !b.left.usable || !b.right.usable) {
     return { ok: false, hint: 'BOTH HANDS IN FRAME FOR BOTH PLAYERS' }
   }

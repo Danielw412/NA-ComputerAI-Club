@@ -109,6 +109,14 @@ export function GameScreen({ state, onQuit }: Props) {
       {mode === 'duel' && phase !== 'results' && (
         <>
           <div className="pointer-events-none absolute inset-y-0 left-1/2 z-20 w-px -translate-x-1/2 bg-gold/70 shadow-[0_0_18px_rgba(250,170,19,0.8)]" />
+          {/* The line is a hard rule for the whole run, not just the starting
+              position — crossing it confuses who's who. Repeated here because
+              the pose-check hint is long gone by the time anyone would cross. */}
+          {(phase === 'countdown' || phase === 'running') && (
+            <p className="pointer-events-none absolute top-28 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-muted">
+              stay on your side of the line
+            </p>
+          )}
           {phase === 'running' && p1 !== p2 && (
             <div
               className={`lead-glow pointer-events-none absolute inset-y-0 z-10 w-1/2 ${
@@ -167,7 +175,9 @@ export function GameScreen({ state, onQuit }: Props) {
             {gateHint || 'HOLD STILL…'}
           </p>
           <p className="text-xs uppercase tracking-[0.3em] text-muted">
-            {mode === 'duel' ? 'two players · one each side' : 'get your whole upper body in frame'}
+            {mode === 'duel'
+              ? 'two players · stay on your own side of the line, the whole run'
+              : 'get your whole upper body in frame'}
           </p>
         </div>
       )}
