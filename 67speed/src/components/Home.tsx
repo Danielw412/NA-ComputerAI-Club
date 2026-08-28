@@ -56,9 +56,10 @@ export function Home({
       <div className="flex min-h-full flex-col items-center justify-center gap-8 px-6 py-10">
       <div className="flex flex-col items-center gap-5">
         <img src="/na-club-logo-dark.png" alt="NA Computer & AI Club" className="h-28 w-28" />
-        <h1 className="display text-7xl leading-none tracking-[0.06em] text-gold">
-          NA 67 SPEED
-        </h1>
+        {/* Just "67" — the logo directly above already carries the NA mark,
+            so repeating it in the wordmark was redundant. Sized up because two
+            characters at the old size read as small rather than bold. */}
+        <h1 className="display text-9xl leading-none tracking-[0.04em] text-gold">67 SPEED</h1>
       </div>
 
       <div className="flex flex-wrap items-stretch justify-center gap-4">

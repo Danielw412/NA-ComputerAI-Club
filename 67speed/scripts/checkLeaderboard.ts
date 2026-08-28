@@ -173,14 +173,21 @@ if (process.argv.includes('--write')) {
     const res = await fetch(`${URL_}/rest/v1/scores`, {
       method: 'POST',
       headers: { ...headers, Prefer: 'return=minimal' },
-      body: JSON.stringify({ name: 'TST', score: 1, mode: 'solo' }),
+      // A full name on purpose: this is the positive control for the name
+      // rule. Checking only that BAD names are rejected let a database that
+      // rejected EVERY name report itself as healthy.
+      body: JSON.stringify({ name: 'Check Bot', score: 1, mode: 'solo' }),
     })
     if (res.ok) {
       inserted = true
-      ok('insert works (added a score of 1 named TST)')
+      ok('insert works — full names accepted (added "Check Bot", score 1)')
     } else {
       failures++
-      bad(`insert failed (${res.status}) — check the "public insert" policy`)
+      const body = await res.text()
+    bad(`insert of a normal full name FAILED (${res.status})`)
+    info(body.slice(0, 240))
+    info('If this names a check constraint, a stale one is still on the table.')
+    info('Re-run supabase/schema.sql — it drops legacy 3-letter constraints.')
     }
   } catch (err) {
     failures++
@@ -206,7 +213,7 @@ if (process.argv.includes('--write')) {
     bad(`delete check failed — ${(err as Error).message}`)
   }
 
-  if (inserted) info('Remove the TST row from the Supabase table editor when done.')
+  if (inserted) info('Remove the "Check Bot" row from the Supabase table editor when done.')
 } else {
   info('Run with --write to also test insert and confirm deletes are blocked.')
 }

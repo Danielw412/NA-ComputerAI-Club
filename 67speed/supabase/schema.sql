@@ -35,6 +35,8 @@ create index if not exists scores_score_created_idx
 -- constraint has to be added separately when upgrading a live database.
 -- This fails if violating rows exist — delete them first, that is intentional.
 do $$
+declare
+  legacy text;
 begin
   if not exists (
     select 1 from pg_constraint where conname = 'scores_won_only_duel'
@@ -49,6 +51,23 @@ begin
   if exists (select 1 from pg_constraint where conname = 'scores_name_format') then
     alter table public.scores drop constraint scores_name_format;
   end if;
+
+  -- Drop ANY other surviving CHECK constraint on this table that still enforces
+  -- the old 3-letter initials rule. An early draft of this schema declared the
+  -- rule inline on the column, so Postgres auto-named it `scores_name_check`,
+  -- and a database created from that draft kept silently rejecting full names
+  -- long after this file stopped mentioning it. Matching on the constraint's
+  -- definition rather than a hardcoded name catches every such leftover.
+  for legacy in
+    select conname
+    from pg_constraint
+    where conrelid = 'public.scores'::regclass
+      and contype = 'c'
+      and conname <> 'scores_name_format'
+      and pg_get_constraintdef(oid) like '%A-Z%'
+  loop
+    execute format('alter table public.scores drop constraint %I', legacy);
+  end loop;
   alter table public.scores
     add constraint scores_name_format check (
       char_length(name) between 2 and 24
