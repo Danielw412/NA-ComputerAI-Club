@@ -8,7 +8,7 @@
  * can never drift away from what the counter actually saw.
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { GameFrame, UsePoseTracker } from '../hooks/usePoseTracker'
+import type { GameFrame, PlayerSnapshot, UsePoseTracker } from '../hooks/usePoseTracker'
 import { audio } from '../lib/audio'
 import type { GameMode } from '../lib/leaderboard'
 
@@ -43,6 +43,13 @@ export interface GameState {
   liveScores: number[]
   /** Increments each time the combined score crosses a milestone. */
   milestoneKey: number
+  /**
+   * Duel only. True when both players are tracked but not split across the
+   * centre divider — checked through countdown and the run itself, not just
+   * at the pose gate, since nothing stops two players drifting together once
+   * they're already in.
+   */
+  sideViolation: boolean
   result: RunResult | null
 }
 
@@ -55,7 +62,13 @@ const INITIAL: GameState = {
   remainingMs: RUN_DURATION_MS,
   liveScores: [0, 0],
   milestoneKey: 0,
+  sideViolation: false,
   result: null,
+}
+
+/** Duel only: is `a` cleanly on the left half and `b` on the right half? */
+function duelSidesOk(a: PlayerSnapshot, b: PlayerSnapshot): boolean {
+  return a.screenX < 0.5 && b.screenX >= 0.5
 }
 
 /**
@@ -78,13 +91,20 @@ function evaluateGate(mode: GameMode, frame: GameFrame): { ok: boolean; hint: st
   if (valid.length < 2) return { ok: false, hint: 'TWO PLAYERS NEEDED' }
   if (valid.length > 2) return { ok: false, hint: 'ONLY TWO PLAYERS IN FRAME' }
   const [a, b] = valid
-  const leftOk = a.screenX < 0.5
-  const rightOk = b.screenX >= 0.5
-  if (!leftOk || !rightOk) return { ok: false, hint: 'P1 STAY LEFT · P2 STAY RIGHT' }
+  if (!duelSidesOk(a, b)) return { ok: false, hint: 'P1 STAY LEFT · P2 STAY RIGHT' }
   if (!a.left.usable || !a.right.usable || !b.left.usable || !b.right.usable) {
     return { ok: false, hint: 'BOTH HANDS IN FRAME FOR BOTH PLAYERS' }
   }
   return { ok: true, hint: '' }
+}
+
+/** Duel only: both players tracked, but not split across the divider. */
+function sidesViolated(mode: GameMode, frame: GameFrame): boolean {
+  if (mode !== 'duel') return false
+  const valid = frame.players.filter((p) => p.valid)
+  if (valid.length !== 2) return false
+  const [a, b] = valid
+  return !duelSidesOk(a, b)
 }
 
 export function useGame(tracker: UsePoseTracker) {
@@ -157,7 +177,7 @@ export function useGame(tracker: UsePoseTracker) {
           lastCountdownDigitRef.current = digit
           if (digit > 0) audio.countdownBeep()
         }
-        publish({ countdownValue: digit })
+        publish({ countdownValue: digit, sideViolation: sidesViolated(mode, frame) })
         if (elapsed >= COUNTDOWN_MS) {
           audio.go()
           // Keep the calibration learned during the pose check, drop the score.
@@ -194,6 +214,7 @@ export function useGame(tracker: UsePoseTracker) {
           remainingMs: remaining,
           liveScores: scores,
           milestoneKey: milestoneKeyRef.current,
+          sideViolation: sidesViolated(mode, frame),
         })
 
         if (remaining <= 0) {
@@ -204,6 +225,7 @@ export function useGame(tracker: UsePoseTracker) {
             ...s,
             phase: 'results',
             remainingMs: 0,
+            sideViolation: false,
             result: { mode, scores: finalScores, durationMs: RUN_DURATION_MS },
           }))
           phaseRef.current = 'results'

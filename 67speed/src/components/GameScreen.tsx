@@ -73,6 +73,7 @@ export function GameScreen({ state, onQuit }: Props) {
     gateHint,
     countdownValue,
     milestoneKey,
+    sideViolation,
   } = state
   const total = liveScores.reduce((a, b) => a + b, 0)
   const flashKey = useRepFlash(total)
@@ -108,14 +109,30 @@ export function GameScreen({ state, onQuit }: Props) {
       {/* Duel divider and per-side lead glow. */}
       {mode === 'duel' && phase !== 'results' && (
         <>
-          <div className="pointer-events-none absolute inset-y-0 left-1/2 z-20 w-px -translate-x-1/2 bg-gold/70 shadow-[0_0_18px_rgba(250,170,19,0.8)]" />
+          <div
+            className={`pointer-events-none absolute inset-y-0 left-1/2 z-20 w-1 -translate-x-1/2 ${
+              sideViolation
+                ? 'danger-pulse bg-danger shadow-[0_0_24px_rgba(255,59,48,0.9)]'
+                : 'bg-gold/70 shadow-[0_0_18px_rgba(250,170,19,0.8)]'
+            }`}
+          />
           {/* The line is a hard rule for the whole run, not just the starting
               position — crossing it confuses who's who. Repeated here because
-              the pose-check hint is long gone by the time anyone would cross. */}
+              the pose-check hint is long gone by the time anyone would cross.
+              Swaps to an explicit warning the moment both players are seen
+              but not actually split across it. */}
           {(phase === 'countdown' || phase === 'running') && (
-            <p className="pointer-events-none absolute top-28 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-muted">
-              stay on your side of the line
-            </p>
+            <div className="pointer-events-none absolute top-24 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap">
+              {sideViolation ? (
+                <p className="rise-in display border-2 border-danger bg-bg/90 px-5 py-2 text-xl tracking-[0.08em] text-danger shadow-[0_0_28px_rgba(255,59,48,0.5)]">
+                  PLAYERS MUST BE ON OPPOSITE SIDES
+                </p>
+              ) : (
+                <p className="bg-bg/60 px-4 py-1.5 text-sm font-semibold uppercase tracking-[0.2em] text-ink/80 backdrop-blur-sm">
+                  stay on your side of the line
+                </p>
+              )}
+            </div>
           )}
           {phase === 'running' && p1 !== p2 && (
             <div

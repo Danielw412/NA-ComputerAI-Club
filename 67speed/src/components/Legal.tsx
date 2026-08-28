@@ -142,7 +142,7 @@ export function Legal({ tab, onSelect, onClose }: Props) {
                 <p>
                   Pose detection runs entirely in your browser. Camera frames are{' '}
                   <strong className="text-ink">never uploaded, recorded, or transmitted</strong>{' '}
-                  anywhere — not to us, not to anyone. No video or images are saved, not even on
+                  anywhere; not to us, not to anyone. No video or images are saved, not even on
                   your own device.
                 </p>
                 <p>
