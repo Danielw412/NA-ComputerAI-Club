@@ -23,16 +23,26 @@ function useRepFlash(total: number) {
   return flashKey
 }
 
+/** Reps of lead needed to hit full scale-up. A 20s sprint rarely opens up more than this. */
+const LEAD_SCALE_MAX_DIFF = 10
+/** Font-size multiplier applied to the leader's base size once the lead maxes out. */
+const LEAD_SCALE_MAX = 1.6
+
 function Counter({
   value,
   label,
   leading,
   huge,
+  scale = 1,
+  behind,
 }: {
   value: number
   label?: string
   leading?: boolean
   huge?: boolean
+  scale?: number
+  /** True once this player is behind by any margin — swaps the gold glow for plain white. */
+  behind?: boolean
 }) {
   const [popKey, setPopKey] = useState(0)
   const prev = useRef(value)
@@ -40,6 +50,8 @@ function Counter({
     if (value !== prev.current) setPopKey((k) => k + 1)
     prev.current = value
   }, [value])
+
+  const baseRem = huge ? 18 : 11
 
   return (
     <div className="flex flex-col items-center">
@@ -52,10 +64,13 @@ function Counter({
       )}
       <span
         key={popKey}
-        className={`rep-pop tnum display leading-none text-gold ${
-          huge ? 'text-[18rem]' : 'text-[11rem]'
+        className={`rep-pop tnum display leading-none transition-[font-size] duration-300 ease-out ${
+          behind ? 'text-white' : 'text-gold'
         }`}
-        style={{ textShadow: '0 0 40px rgba(250,170,19,0.35)' }}
+        style={{
+          fontSize: `${baseRem * scale}rem`,
+          textShadow: behind ? 'none' : '0 0 40px rgba(250,170,19,0.35)',
+        }}
       >
         {value}
       </span>
@@ -82,6 +97,8 @@ export function GameScreen({ state, onQuit }: Props) {
 
   const p1 = liveScores[0] ?? 0
   const p2 = liveScores[1] ?? 0
+  const leadDiff = Math.min(Math.abs(p1 - p2), LEAD_SCALE_MAX_DIFF)
+  const leadScale = 1 + (leadDiff / LEAD_SCALE_MAX_DIFF) * (LEAD_SCALE_MAX - 1)
 
   return (
     <div className="relative z-20 h-full w-full">
@@ -232,8 +249,20 @@ export function GameScreen({ state, onQuit }: Props) {
             <Counter value={p1} huge />
           ) : (
             <div className="flex w-full items-center justify-around">
-              <Counter value={p1} label="P1" leading={p1 > p2} />
-              <Counter value={p2} label="P2" leading={p2 > p1} />
+              <Counter
+                value={p1}
+                label="P1"
+                leading={p1 > p2}
+                behind={p2 > p1}
+                scale={p1 > p2 ? leadScale : 1}
+              />
+              <Counter
+                value={p2}
+                label="P2"
+                leading={p2 > p1}
+                behind={p1 > p2}
+                scale={p2 > p1 ? leadScale : 1}
+              />
             </div>
           )}
         </div>
