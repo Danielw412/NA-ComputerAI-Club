@@ -185,7 +185,7 @@ export function DevPanel({
   const p0 = snapshot.players[0]
 
   return (
-    <div className="absolute top-4 left-4 z-30 max-h-[92vh] w-[23rem] overflow-y-auto border border-gold/30 bg-surface/95 p-4 font-mono text-xs text-ink shadow-2xl backdrop-blur">
+    <div className="scroll-dark absolute top-4 left-4 z-30 max-h-[92vh] w-[23rem] overflow-y-auto border border-gold/30 bg-surface/95 p-4 font-mono text-xs text-ink shadow-2xl backdrop-blur">
       <div className="mb-3 flex items-center justify-between border-b border-white/10 pb-2">
         <span className="tracking-[0.2em] text-gold">DEV PANEL</span>
         <span className="text-muted">press D to hide</span>

@@ -64,7 +64,16 @@ function Counter({
 }
 
 export function GameScreen({ state, onQuit }: Props) {
-  const { phase, mode, remainingMs, liveScores, poseProgress, gateHint, countdownValue } = state
+  const {
+    phase,
+    mode,
+    remainingMs,
+    liveScores,
+    poseProgress,
+    gateHint,
+    countdownValue,
+    milestoneKey,
+  } = state
   const total = liveScores.reduce((a, b) => a + b, 0)
   const flashKey = useRepFlash(total)
   const danger = phase === 'running' && remainingMs <= DANGER_MS
@@ -78,6 +87,22 @@ export function GameScreen({ state, onQuit }: Props) {
       {/* Rep feedback sweep. Keyed so each rep restarts the animation. */}
       {flashKey > 0 && (
         <div key={flashKey} className="edge-flash pointer-events-none absolute inset-0 z-30" />
+      )}
+
+      {/* Milestone: a thick double shockwave and a gold wash. No number — it
+          collided with the counter and read as a random digit above the score. */}
+      {phase === 'running' && milestoneKey > 0 && (
+        <div
+          key={`ms-${milestoneKey}`}
+          className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center"
+        >
+          <div className="milestone-wash absolute inset-0 bg-gold/25" />
+          <div
+            className="milestone-ring absolute h-[30rem] w-[30rem] rounded-full border-[18px] border-gold"
+            style={{ boxShadow: '0 0 90px rgba(250,170,19,0.85), inset 0 0 60px rgba(250,170,19,0.5)' }}
+          />
+          <div className="milestone-ring-2 absolute h-[30rem] w-[30rem] rounded-full border-[10px] border-ink/70" />
+        </div>
       )}
 
       {/* Duel divider and per-side lead glow. */}
@@ -162,7 +187,12 @@ export function GameScreen({ state, onQuit }: Props) {
 
       {/* --- Live run --- */}
       {phase === 'running' && (
-        <div className="flex h-full flex-col items-center justify-center">
+        <div
+          key={`shake-${milestoneKey}`}
+          className={`flex h-full flex-col items-center justify-center ${
+            milestoneKey > 0 ? 'shake' : ''
+          }`}
+        >
           <div
             className={`display tnum absolute top-8 left-1/2 -translate-x-1/2 text-5xl ${
               danger ? 'danger-pulse text-danger' : 'text-ink'

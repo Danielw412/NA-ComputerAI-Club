@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "node --test --experimental-strip-types \"src/**/*.test.ts\"",
     "typecheck": "tsc -b --noEmit",
-    "tune": "node --experimental-strip-types scripts/tuneAuto.ts"
+    "tune": "node --experimental-strip-types scripts/tuneAuto.ts",
+    "check:db": "node --experimental-strip-types scripts/checkLeaderboard.ts"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.0.1",

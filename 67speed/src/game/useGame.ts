@@ -18,6 +18,8 @@ export const POSE_HOLD_MS = 1000
 export const COUNTDOWN_MS = 3000
 /** Final seconds where the timer turns red and pulses. */
 export const DANGER_MS = 3000
+/** Every N reps the run gets a shake + rising triad. Keeps a 20s sprint eventful. */
+export const MILESTONE_EVERY = 25
 
 export type Phase = 'home' | 'poseCheck' | 'countdown' | 'running' | 'results'
 
@@ -39,6 +41,8 @@ export interface GameState {
   countdownValue: number
   remainingMs: number
   liveScores: number[]
+  /** Increments each time the combined score crosses a milestone. */
+  milestoneKey: number
   result: RunResult | null
 }
 
@@ -50,6 +54,7 @@ const INITIAL: GameState = {
   countdownValue: 3,
   remainingMs: RUN_DURATION_MS,
   liveScores: [0, 0],
+  milestoneKey: 0,
   result: null,
 }
 
@@ -92,6 +97,8 @@ export function useGame(tracker: UsePoseTracker) {
   const gateSinceRef = useRef<number>(0)
   const phaseStartRef = useRef<number>(0)
   const lastCountdownDigitRef = useRef<number>(-1)
+  const lastMilestoneRef = useRef<number>(0)
+  const milestoneKeyRef = useRef<number>(0)
   const publishedRef = useRef<Partial<GameState>>({})
 
   const setPhase = useCallback((phase: Phase, tMs: number) => {
@@ -155,7 +162,10 @@ export function useGame(tracker: UsePoseTracker) {
           audio.go()
           // Keep the calibration learned during the pose check, drop the score.
           tracker.resetScoresKeepCalibration()
-          publish({ liveScores: [0, 0], remainingMs: RUN_DURATION_MS })
+          // Both must reset per run, or run 2 announces "50" at 25 reps.
+          lastMilestoneRef.current = 0
+          milestoneKeyRef.current = 0
+          publish({ liveScores: [0, 0], remainingMs: RUN_DURATION_MS, milestoneKey: 0 })
           setPhase('running', t)
         }
         return
@@ -170,9 +180,21 @@ export function useGame(tracker: UsePoseTracker) {
           const secs = Math.max(0.5, elapsed / 1000)
           const total = scores.reduce((a, b) => a + b, 0)
           audio.rep(total / secs)
+
+          // Milestone: shake the screen and play a rising triad.
+          const milestone = Math.floor(total / MILESTONE_EVERY)
+          if (total > 0 && milestone > lastMilestoneRef.current) {
+            lastMilestoneRef.current = milestone
+            milestoneKeyRef.current += 1
+            audio.milestone()
+          }
         }
 
-        publish({ remainingMs: remaining, liveScores: scores })
+        publish({
+          remainingMs: remaining,
+          liveScores: scores,
+          milestoneKey: milestoneKeyRef.current,
+        })
 
         if (remaining <= 0) {
           audio.horn()

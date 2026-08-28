@@ -1,0 +1,43 @@
+name: 67speed build
+
+on:
+  pull_request:
+    paths:
+      - '67speed/**'
+      - '.github/workflows/67speed-build.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - '67speed/**'
+      - '.github/workflows/67speed-build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 67speed
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '67speed/.node-version'
+          cache: npm
+          cache-dependency-path: '67speed/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
