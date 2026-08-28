@@ -130,7 +130,8 @@ export function isNameAllowed(name: string): boolean {
 
 async function fetchRemote(): Promise<ScoreEntry[]> {
   if (!remoteConfigured) return []
-  const url = `${URL_ENV}/rest/v1/scores?select=name,score,mode,won,created_at&order=score.desc&limit=${TOP_N}`
+  // best_scores is the deduplicating view: one row per name, their best run.
+  const url = `${URL_ENV}/rest/v1/best_scores?select=name,score,mode,won,created_at&order=score.desc&limit=${TOP_N}`
   const res = await fetch(url, { headers: headers() })
   if (!res.ok) throw new Error(`leaderboard fetch failed: ${res.status}`)
   const rows = (await res.json()) as Array<{
@@ -183,8 +184,28 @@ export interface LeaderboardResult {
   online: boolean
 }
 
+/**
+ * One row per name, keeping that name's best run, highest score first.
+ *
+ * Mirrors the `best_scores` view exactly — same tie-break (earliest wins), same
+ * shape. Offline and online boards must agree or the leaderboard appears to
+ * change when the network drops.
+ *
+ * Names are the only identity here, so two different people typing "Alex" are
+ * treated as one player. That is inherent to a name-based board.
+ */
 function rank(entries: ScoreEntry[]): ScoreEntry[] {
-  return [...entries].sort((a, b) => b.score - a.score || a.date.localeCompare(b.date)).slice(0, TOP_N)
+  const bestByName = new Map<string, ScoreEntry>()
+  for (const e of entries) {
+    const key = e.name.toLowerCase()
+    const cur = bestByName.get(key)
+    if (!cur || e.score > cur.score || (e.score === cur.score && e.date < cur.date)) {
+      bestByName.set(key, e)
+    }
+  }
+  return [...bestByName.values()]
+    .sort((a, b) => b.score - a.score || a.date.localeCompare(b.date))
+    .slice(0, TOP_N)
 }
 
 export async function getTop(): Promise<LeaderboardResult> {
@@ -232,16 +253,18 @@ export async function getWins(): Promise<{ entries: WinEntry[]; source: Leaderbo
   return { entries: aggregateWins(readLocal()), source: 'unset' }
 }
 
+/** Mirrors the `win_counts` view, including its case-insensitive grouping. */
 function aggregateWins(entries: ScoreEntry[]): WinEntry[] {
   const byName = new Map<string, WinEntry>()
   for (const e of entries) {
     if (e.mode !== 'duel' || !e.won) continue
-    const cur = byName.get(e.name)
+    const key = e.name.toLowerCase()
+    const cur = byName.get(key)
     if (cur) {
       cur.wins++
       cur.bestScore = Math.max(cur.bestScore, e.score)
     } else {
-      byName.set(e.name, { name: e.name, wins: 1, bestScore: e.score })
+      byName.set(key, { name: e.name, wins: 1, bestScore: e.score })
     }
   }
   return [...byName.values()]
@@ -260,3 +283,9 @@ export async function submit(entry: ScoreEntry): Promise<{ online: boolean }> {
     return { online: false }
   }
 }
+
+/**
+ * Internal helpers exposed for unit tests only. These mirror SQL views, so they
+ * are the pieces most worth pinning down; nothing in the app should import this.
+ */
+export const __testing = { rank, aggregateWins }

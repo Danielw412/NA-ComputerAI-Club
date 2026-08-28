@@ -96,16 +96,45 @@ create index if not exists scores_wins_idx on public.scores (name) where won;
 -- up. security_invoker makes the view run with the CALLER's RLS rather than the
 -- owner's, so it cannot become a way to read past the table policies above.
 drop view if exists public.win_counts;
+-- Also case-insensitive, so a player's wins are not split across "Alex"/"alex".
+-- min(name) picks one spelling to display.
 create view public.win_counts with (security_invoker = on) as
   select
-    name,
+    min(name) as name,
     count(*)::int as wins,
     max(score)::int as best_score,
     max(created_at) as last_win
   from public.scores
   where mode = 'duel' and won
-  group by name;
+  group by lower(name);
 
 grant select on public.win_counts to anon;
+
+-- FASTEST board: one row per name, keeping that name's best run.
+--
+-- Done as a view rather than by letting the browser UPDATE an existing row.
+-- Granting anon UPDATE would let anybody overwrite anybody else's score, which
+-- is a far worse problem than duplicate names. The table stays append-only, so
+-- every run is still recorded and nothing is destroyed; the board just shows
+-- each name once.
+--
+-- distinct on (name) keeps the FIRST row per name under this ORDER BY, so the
+-- ordering is what selects the best run: highest score, and on a tie the
+-- earliest one (whoever got there first keeps it).
+drop view if exists public.best_scores;
+-- Matched case-insensitively: "Alex" and "alex" are one player, which is also
+-- what the offline client does. The two must agree or the board appears to
+-- change when the network drops.
+create view public.best_scores with (security_invoker = on) as
+  select distinct on (lower(name))
+    name,
+    score,
+    mode,
+    won,
+    created_at
+  from public.scores
+  order by lower(name), score desc, created_at asc;
+
+grant select on public.best_scores to anon;
 
 -- There are intentionally no UPDATE or DELETE grants/policies for the browser.

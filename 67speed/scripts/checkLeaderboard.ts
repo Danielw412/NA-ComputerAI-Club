@@ -121,7 +121,34 @@ try {
   bad(`win-farming check failed — ${(err as Error).message}`)
 }
 
-// 4. The MOST WINS board reads a view; a missing view is a silent empty board.
+// 4. The FASTEST board reads a deduplicating view; a missing view means the
+//    board falls back to nothing rather than showing duplicate names.
+try {
+  const res = await fetch(
+    `${URL_}/rest/v1/best_scores?select=name,score,mode,won,created_at&order=score.desc&limit=5`,
+    { headers },
+  )
+  if (res.ok) {
+    const rows = (await res.json()) as Array<{ name: string }>
+    const names = rows.map((r) => r.name.toLowerCase())
+    const unique = new Set(names)
+    if (names.length !== unique.size) {
+      failures++
+      bad('best_scores returned duplicate names — the view is not deduplicating')
+    } else {
+      ok(`best_scores view works — ${rows.length} unique name(s)`)
+    }
+  } else {
+    failures++
+    bad(`best_scores view unreadable (${res.status}) — FASTEST board will be empty`)
+    info('Re-run supabase/schema.sql; it creates the view and grants select on it.')
+  }
+} catch (err) {
+  failures++
+  bad(`best_scores check failed — ${(err as Error).message}`)
+}
+
+// 5. The MOST WINS board reads a view; a missing view is a silent empty board.
 try {
   const res = await fetch(`${URL_}/rest/v1/win_counts?select=name,wins,best_score&limit=5`, {
     headers,
@@ -140,7 +167,7 @@ try {
 }
 
 if (process.argv.includes('--write')) {
-  // 5. Insert policy.
+  // 6. Insert policy.
   let inserted = false
   try {
     const res = await fetch(`${URL_}/rest/v1/scores`, {
@@ -160,7 +187,7 @@ if (process.argv.includes('--write')) {
     bad(`insert failed — ${(err as Error).message}`)
   }
 
-  // 6. Delete MUST be refused. This is the security property that matters.
+  // 7. Delete MUST be refused. This is the security property that matters.
   try {
     const res = await fetch(`${URL_}/rest/v1/scores?name=eq.TST`, { method: 'DELETE', headers })
     const body = await res.text()

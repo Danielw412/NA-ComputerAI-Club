@@ -8,6 +8,7 @@ import assert from 'node:assert/strict'
 import {
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
+  __testing,
   isNameAllowed,
   sanitizeName,
 } from './leaderboard.ts'
@@ -61,4 +62,65 @@ test('sanitize never produces a leading space, hyphen or apostrophe', () => {
     const clean = sanitizeName(raw)
     assert.ok(!/^[ '-]/.test(clean), `${JSON.stringify(clean)} must not start with punctuation`)
   }
+})
+
+// --------------------------------------------------------------- board rules
+//
+// These mirror the `best_scores` and `win_counts` SQL views. If they drift, the
+// board changes shape when the network drops, which looks like data loss.
+
+const { rank, aggregateWins } = __testing
+
+const row = (name: string, score: number, opts: { won?: boolean; date?: string; mode?: 'solo' | 'duel' } = {}) => ({
+  name,
+  score,
+  mode: opts.mode ?? ('duel' as const),
+  won: opts.won ?? false,
+  date: opts.date ?? '2026-08-28T00:00:00.000Z',
+})
+
+test('fastest board keeps only each name\'s best run', () => {
+  const out = rank([row('Alex', 100), row('Alex', 140), row('Sam', 120)])
+  assert.equal(out.length, 2, 'Alex must appear once')
+  assert.equal(out[0].name, 'Alex')
+  assert.equal(out[0].score, 140, 'the better run wins')
+  assert.equal(out[1].score, 120)
+})
+
+test('fastest board matches names case-insensitively', () => {
+  const out = rank([row('Alex', 90), row('alex', 130), row('ALEX', 60)])
+  assert.equal(out.length, 1)
+  assert.equal(out[0].score, 130)
+})
+
+test('on a tied score the earliest run keeps the slot', () => {
+  const out = rank([
+    row('Alex', 100, { date: '2026-08-28T10:00:00.000Z' }),
+    row('Alex', 100, { date: '2026-08-28T09:00:00.000Z' }),
+  ])
+  assert.equal(out.length, 1)
+  assert.equal(out[0].date, '2026-08-28T09:00:00.000Z')
+})
+
+test('wins are counted per unique name, case-insensitively', () => {
+  const out = aggregateWins([
+    row('Alex', 100, { won: true }),
+    row('alex', 90, { won: true }),
+    row('Sam', 80, { won: true }),
+    row('Alex', 200, { won: false }),
+  ])
+  assert.equal(out.length, 2)
+  assert.equal(out[0].name, 'Alex')
+  assert.equal(out[0].wins, 2, 'Alex and alex are the same player')
+  assert.equal(out[0].bestScore, 100, 'only winning runs count toward bestScore')
+  assert.equal(out[1].wins, 1)
+})
+
+test('solo runs never count as wins', () => {
+  const out = aggregateWins([
+    row('Alex', 100, { won: true, mode: 'solo' }),
+    row('Alex', 90, { won: true, mode: 'duel' }),
+  ])
+  assert.equal(out.length, 1)
+  assert.equal(out[0].wins, 1)
 })

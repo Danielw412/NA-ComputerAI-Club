@@ -1,5 +1,5 @@
 /**
- * Home screen. Deliberately plain: buttons, leaderboard, privacy line.
+ * Home screen. Deliberately plain: play buttons, leaderboard, footer.
  * No camera runs here — getUserMedia is only called once a mode is chosen.
  */
 import { Leaderboard } from './Leaderboard'
@@ -7,12 +7,13 @@ import type { GameMode } from '../lib/leaderboard'
 import type { LegalTab } from './Legal'
 
 /**
- * Other NA Computer & AI Club projects. Every URL here was confirmed to
- * respond before being added — do not add a link you have not loaded.
+ * Other NA Computer & AI Club projects, shown in the footer. Every URL here was
+ * confirmed to respond before being added — do not add a link you have not
+ * loaded.
  */
 const CLUB_LINKS = [
-  { label: 'Schedule Share', href: 'https://schedule.naclubs.net', icon: '🗓' },
-  { label: 'Club GitHub', href: 'https://github.com/Danielw412/NA-ComputerAI-Club', icon: '⌨' },
+  { label: 'Schedule Share', href: 'https://schedule.naclubs.net' },
+  { label: 'Club GitHub', href: 'https://github.com/Danielw412/NA-ComputerAI-Club' },
 ] as const
 
 interface Props {
@@ -32,6 +33,16 @@ export function Home({
   error,
   leaderboardKey,
 }: Props) {
+  const FOOTER_LINKS: ReadonlyArray<{
+    label: string
+    href?: string
+    onClick?: () => void
+  }> = [
+    ...CLUB_LINKS,
+    { label: 'Terms & Disclaimer', onClick: () => onOpenLegal('terms') },
+    { label: 'Privacy & Data', onClick: () => onOpenLegal('privacy') },
+  ]
+
   return (
     <div className="relative z-20 flex h-full flex-col items-center justify-center gap-8 overflow-y-auto px-6 py-10">
       <div className="flex flex-col items-center gap-5">
@@ -65,56 +76,55 @@ export function Home({
 
       <Leaderboard refreshKey={leaderboardKey} />
 
-      {/* Other club projects. Both URLs verified live before linking. */}
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        {CLUB_LINKS.map((link) => (
-          <a
-            key={link.href}
-            href={link.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-2 border border-white/15 px-4 py-2 text-xs uppercase tracking-[0.2em] text-muted transition hover:border-gold/50 hover:text-gold"
-          >
-            <span aria-hidden="true" className="text-base leading-none">
-              {link.icon}
-            </span>
-            {link.label}
-            <span aria-hidden="true" className="opacity-40 group-hover:opacity-100">
-              ↗
-            </span>
-          </a>
-        ))}
-      </div>
+      {/*
+        One footer bar: all four links side by side, separated by hairlines
+        rather than each being its own boxed button. Four separate boxes across
+        two rows read as clutter competing with the SOLO/DUEL buttons; the
+        arcade rule is that only the things you press mid-game should look
+        pressable.
+      */}
+      <footer className="mt-2 flex w-full max-w-3xl flex-col items-center gap-3">
+        <nav className="flex flex-wrap items-center justify-center divide-x divide-white/10 border-y border-white/10">
+          {FOOTER_LINKS.map((item) => {
+            const className =
+              'group flex items-center gap-2 px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-muted transition hover:bg-white/5 hover:text-gold'
+            return item.href ? (
+              <a
+                key={item.label}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={className}
+              >
+                {item.label}
+                <span aria-hidden="true" className="opacity-30 group-hover:opacity-100">
+                  ↗
+                </span>
+              </a>
+            ) : (
+              <button key={item.label} onClick={item.onClick} className={className}>
+                {item.label}
+              </button>
+            )
+          })}
+        </nav>
 
-      <div className="flex flex-col items-center gap-3">
-        <p className="text-xs uppercase tracking-[0.2em] text-muted">
+        <p className="text-[11px] uppercase tracking-[0.2em] text-muted">
           100% on-device — nothing leaves your computer
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <button
-            onClick={() => onOpenLegal('terms')}
-            className="border border-white/15 px-4 py-2 text-xs uppercase tracking-[0.2em] text-muted transition hover:border-gold/50 hover:text-gold"
-          >
-            Terms &amp; Disclaimer
-          </button>
-          <button
-            onClick={() => onOpenLegal('privacy')}
-            className="border border-white/15 px-4 py-2 text-xs uppercase tracking-[0.2em] text-muted transition hover:border-gold/50 hover:text-gold"
-          >
-            Privacy &amp; Data
-          </button>
-        </div>
-        <p className="max-w-md text-center text-[10px] leading-relaxed text-muted/60">
+
+        <p className="max-w-xl text-center text-[10px] leading-relaxed text-muted/55">
           Not affiliated with, endorsed by, or operated by the North Allegheny School District.
           A student project by the NA Computer &amp; AI Club.
         </p>
+
         <button
           onClick={onTrackerTest}
-          className="text-[10px] uppercase tracking-[0.2em] text-muted/60 underline-offset-4 hover:text-muted hover:underline"
+          className="text-[10px] uppercase tracking-[0.2em] text-muted/50 underline-offset-4 hover:text-muted hover:underline"
         >
           tracker test
         </button>
-      </div>
+      </footer>
     </div>
   )
 }
