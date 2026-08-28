@@ -31,11 +31,18 @@ export interface ScoreEntry {
 export const remoteConfigured = Boolean(URL_ENV && KEY_ENV)
 
 function headers(): Record<string, string> {
-  return {
+  const result: Record<string, string> = {
     apikey: KEY_ENV ?? '',
-    Authorization: `Bearer ${KEY_ENV ?? ''}`,
     'Content-Type': 'application/json',
   }
+
+  // Modern sb_publishable_* keys belong only in the apikey header. Legacy anon
+  // keys are JWTs, so keep the old Bearer header only for that compatibility path.
+  if (!PUBLISHABLE_KEY_ENV && LEGACY_ANON_KEY_ENV) {
+    result.Authorization = `Bearer ${LEGACY_ANON_KEY_ENV}`
+  }
+
+  return result
 }
 
 // ------------------------------------------------------------------ local
