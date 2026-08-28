@@ -115,6 +115,14 @@ export class GameAudio {
     this.tone({ freq: 240, durationMs: 900, type: 'square', gain: 0.12, sweepTo: 140 })
   }
 
+  /** Every 25 reps during a run — a short rising triad, louder than a tick. */
+  milestone(): void {
+    const notes = [660, 880, 1170]
+    notes.forEach((f, i) =>
+      this.tone({ freq: f, durationMs: 130, type: 'square', gain: 0.2, delayMs: i * 55 }),
+    )
+  }
+
   /** Made the leaderboard. */
   fanfare(): void {
     const notes = [523, 659, 784, 1047]

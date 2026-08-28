@@ -1,8 +1,9 @@
 @import 'tailwindcss';
 
 /*
- * Palette. --color-gold is sampled straight out of public/na-club-logo.png
- * (dominant non-black/white pixel = #FAAA13). Do not eyeball a replacement.
+ * Palette. --color-gold is sampled straight out of the club logo PNGs
+ * (dominant non-black/white pixel = #FAAA13, identical in both the light and
+ * dark variants). Do not eyeball a replacement.
  */
 @theme {
   --color-bg: #0a0a0a;
@@ -142,12 +143,151 @@ button {
   animation: lead-glow 1.4s ease-in-out infinite;
 }
 
+/* --- Results drama --- */
+@keyframes winner-in {
+  0% {
+    transform: scale(0.4) rotate(-6deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12) rotate(2deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+.winner-in {
+  animation: winner-in 620ms cubic-bezier(0.2, 1.3, 0.35, 1) both;
+}
+
+@keyframes rise-in {
+  from {
+    transform: translateY(28px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.rise-in {
+  animation: rise-in 480ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+/* Winner's number keeps breathing so the eye lands on it. */
+@keyframes trophy-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 40px rgba(250, 170, 19, 0.35);
+  }
+  50% {
+    text-shadow:
+      0 0 90px rgba(250, 170, 19, 0.75),
+      0 0 20px rgba(250, 170, 19, 0.5);
+  }
+}
+.trophy-glow {
+  animation: trophy-glow 1.8s ease-in-out infinite;
+}
+
+/* Milestone hit during a run. */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+  8% {
+    transform: translate(-22px, 11px) rotate(-1.6deg) scale(1.05);
+  }
+  18% {
+    transform: translate(20px, -15px) rotate(1.5deg) scale(1.07);
+  }
+  28% {
+    transform: translate(-18px, -10px) rotate(-1.2deg) scale(1.05);
+  }
+  38% {
+    transform: translate(16px, 13px) rotate(1.1deg) scale(1.04);
+  }
+  50% {
+    transform: translate(-12px, -8px) rotate(-0.8deg) scale(1.03);
+  }
+  62% {
+    transform: translate(10px, 7px) rotate(0.6deg) scale(1.02);
+  }
+  74% {
+    transform: translate(-6px, -4px) rotate(-0.4deg) scale(1.01);
+  }
+  86% {
+    transform: translate(4px, 3px) rotate(0.2deg) scale(1);
+  }
+}
+.shake {
+  animation: shake 620ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes milestone-ring {
+  0% {
+    transform: scale(0.35);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  55% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+.milestone-ring {
+  animation: milestone-ring 900ms cubic-bezier(0.15, 0.7, 0.3, 1) forwards;
+}
+
+/* Second ring, delayed, so the burst reads as a shockwave rather than a circle. */
+.milestone-ring-2 {
+  animation: milestone-ring 900ms cubic-bezier(0.15, 0.7, 0.3, 1) 130ms forwards;
+}
+
+/* Full-screen gold wash on the milestone frame. */
+@keyframes milestone-wash {
+  0% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.milestone-wash {
+  animation: milestone-wash 520ms ease-out forwards;
+}
+
+@keyframes banner-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+.banner-sweep {
+  animation: banner-sweep 1.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rep-pop,
   .slam,
   .danger-pulse,
   .lead-glow,
-  .edge-flash {
+  .edge-flash,
+  .winner-in,
+  .rise-in,
+  .trophy-glow,
+  .shake,
+  .milestone-ring,
+  .banner-sweep {
     animation: none;
   }
 }

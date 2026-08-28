@@ -28,12 +28,22 @@ export default function App() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null
+      // Never steal keys from the initials input.
       if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return
       if (e.key === 'd' || e.key === 'D') setDevOpen((v) => !v)
+      // Booth ergonomics: F for fullscreen, Escape to bail back to home.
+      if (e.key === 'f' || e.key === 'F') {
+        if (document.fullscreenElement) void document.exitFullscreen()
+        else void document.documentElement.requestFullscreen().catch(() => {})
+      }
+      if (e.key === 'Escape') {
+        setView('game')
+        goHome()
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [goHome])
 
   const cameraLive = tracker.status === 'running'
   const atHome = view === 'game' && state.phase === 'home'
