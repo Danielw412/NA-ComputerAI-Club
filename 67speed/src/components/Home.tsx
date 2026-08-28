@@ -44,7 +44,16 @@ export function Home({
   ]
 
   return (
-    <div className="relative z-20 flex h-full flex-col items-center justify-center gap-8 overflow-y-auto px-6 py-10">
+    /*
+      Scroll on the OUTER element, centre on the inner one with min-h-full.
+      Putting overflow-y-auto and justify-center on the SAME element is the bug
+      that clipped the logo: once centred content is taller than its container,
+      the overflow spills off BOTH ends and the top cannot be scrolled back to.
+      With this split the content centres while it fits and scrolls from the top
+      once it does not.
+    */
+    <div className="scroll-dark relative z-20 h-full overflow-y-auto">
+      <div className="flex min-h-full flex-col items-center justify-center gap-8 px-6 py-10">
       <div className="flex flex-col items-center gap-5">
         <img src="/na-club-logo-dark.png" alt="NA Computer & AI Club" className="h-28 w-28" />
         <h1 className="display text-7xl leading-none tracking-[0.06em] text-gold">
@@ -124,7 +133,8 @@ export function Home({
         >
           tracker test
         </button>
-      </footer>
+        </footer>
+      </div>
     </div>
   )
 }

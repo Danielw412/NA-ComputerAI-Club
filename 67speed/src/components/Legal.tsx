@@ -87,7 +87,7 @@ export function Legal({ tab, onSelect, onClose }: Props) {
           </button>
         </div>
 
-        <div className="overflow-y-auto px-6 py-5">
+        <div className="scroll-dark overflow-y-auto px-6 py-5">
           {tab === 'terms' ? (
             <>
               <Section title="NOT AFFILIATED WITH NORTH ALLEGHENY">

@@ -151,7 +151,7 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
   }, [mode, tie, winnerIndex, isNewPersonalBest])
 
   return (
-    <div className="relative z-20 flex h-full flex-col items-center justify-center gap-5 overflow-y-auto px-6 py-8 text-center">
+    <div className="scroll-dark relative z-20 flex h-full flex-col items-center justify-center gap-5 overflow-y-auto px-6 py-8 text-center">
       <Confetti fire={confettiFire} mode={mode === 'duel' ? 'cannons' : 'center'} />
 
       <p

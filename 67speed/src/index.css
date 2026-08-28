@@ -276,6 +276,42 @@ button {
   animation: banner-sweep 1.6s ease-in-out infinite;
 }
 
+/*
+ * Dark scrollbar for scroll areas on the black UI. The platform default is a
+ * light bar that sits on top of the content — on the leaderboard it covered the
+ * "When" column. `scrollbar-gutter: stable` reserves the space instead of
+ * overlaying it, so nothing is hidden and the layout does not shift when the
+ * bar appears.
+ */
+.scroll-dark {
+  scrollbar-gutter: stable;
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(250, 170, 19, 0.3) transparent;
+}
+
+.scroll-dark::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scroll-dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-dark::-webkit-scrollbar-thumb {
+  /* Transparent border + content-box clip gives the thumb inset padding, so it
+     reads as a thin bar with space around it rather than a full-width slab. */
+  background-color: rgba(250, 170, 19, 0.28);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+
+.scroll-dark:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(250, 170, 19, 0.55);
+  background-clip: content-box;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rep-pop,
   .slam,
