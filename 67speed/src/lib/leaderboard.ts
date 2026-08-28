@@ -5,11 +5,13 @@
  * dependency, nothing extra in the bundle. If Supabase is not configured, or
  * the network is down at the venue, everything falls back to localStorage and
  * the game keeps working. A leaderboard outage must never block play.
- *
- * Setup instructions live in CLAUDE.md section 7.
  */
 const URL_ENV = import.meta.env.VITE_SUPABASE_URL as string | undefined
-const KEY_ENV = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
+const PUBLISHABLE_KEY_ENV = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined
+const LEGACY_ANON_KEY_ENV = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
+// Supabase recommends publishable keys for new browser apps. Keep the legacy
+// anon-key fallback so an existing deployment can migrate without code changes.
+const KEY_ENV = PUBLISHABLE_KEY_ENV ?? LEGACY_ANON_KEY_ENV
 
 const LOCAL_KEY = 'cai67:leaderboard'
 const BEST_KEY = 'cai67:personalBest'
