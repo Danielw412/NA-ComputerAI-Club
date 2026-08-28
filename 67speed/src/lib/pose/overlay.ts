@@ -36,40 +36,73 @@ export function drawSkeleton(
 
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'
-    ctx.lineWidth = Math.max(2, height * 0.004)
     ctx.strokeStyle = style.color
-    ctx.shadowColor = style.color
-    ctx.shadowBlur = Math.max(4, height * 0.012)
+    ctx.fillStyle = style.color
 
+    const core = Math.max(2, height * 0.004)
+
+    // Build every arm chain into ONE path, then stroke it twice: a wide
+    // translucent pass for the glow and a narrow solid pass for the line.
+    //
+    // This replaces ctx.shadowBlur, which was set once but applied per stroke —
+    // 12 separately-blurred draws per frame with two players. Canvas shadow
+    // blurring is one of the most expensive 2D operations there is, and it was
+    // the main per-frame cost in duel mode. Two cheap strokes over a shared
+    // path look near-identical and cost a fraction.
+    ctx.beginPath()
     for (const [a, b] of ARM_CHAINS) {
       const la = lms[a]
       const lb = lms[b]
       if (!visible(la) || !visible(lb)) continue
       const [ax, ay] = px(la)
       const [bx, by] = px(lb)
-      ctx.beginPath()
       ctx.moveTo(ax, ay)
       ctx.lineTo(bx, by)
-      ctx.stroke()
     }
+    ctx.globalAlpha = 0.22
+    ctx.lineWidth = core * 3.2
+    ctx.stroke()
+    ctx.globalAlpha = 1
+    ctx.lineWidth = core
+    ctx.stroke()
 
-    const wristDot = (idx: number, active: boolean) => {
-      const lm = lms[idx]
-      if (!visible(lm)) return
-      const [x, y] = px(lm)
-      const r = Math.max(4, height * 0.011)
+    // Wrist markers, also batched: one path for filled (arm raised), one for
+    // outlined, instead of a blurred draw each.
+    const r = Math.max(4, height * 0.011)
+    const dots = (indices: number[], filled: boolean) => {
+      let any = false
       ctx.beginPath()
-      ctx.arc(x, y, r, 0, Math.PI * 2)
-      if (active) {
-        ctx.fillStyle = style.color
+      for (const idx of indices) {
+        const lm = lms[idx]
+        if (!visible(lm)) continue
+        const [x, y] = px(lm)
+        ctx.moveTo(x + r, y)
+        ctx.arc(x, y, r, 0, Math.PI * 2)
+        any = true
+      }
+      if (!any) return
+      if (filled) {
+        ctx.globalAlpha = 0.25
+        ctx.lineWidth = core * 3.2
+        ctx.stroke()
+        ctx.globalAlpha = 1
         ctx.fill()
       } else {
+        ctx.lineWidth = core
         ctx.stroke()
       }
     }
-    wristDot(LM.LEFT_WRIST, style.activeWrists.left)
-    wristDot(LM.RIGHT_WRIST, style.activeWrists.right)
 
-    ctx.shadowBlur = 0
+    const active = style.activeWrists
+    dots(
+      [active.left ? LM.LEFT_WRIST : -1, active.right ? LM.RIGHT_WRIST : -1].filter((i) => i >= 0),
+      true,
+    )
+    dots(
+      [!active.left ? LM.LEFT_WRIST : -1, !active.right ? LM.RIGHT_WRIST : -1].filter((i) => i >= 0),
+      false,
+    )
+
+    ctx.globalAlpha = 1
   })
 }
