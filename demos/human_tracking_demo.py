@@ -1795,6 +1795,37 @@ class EmojiRenderer:
                 "(Windows) or Noto Color Emoji (Linux)."
             )
         self.cache: dict[tuple[str, int], np.ndarray] = {}
+        self.supported_sizes = self._probe_supported_sizes()
+
+    def _probe_supported_sizes(self) -> list[int]:
+        """Font sizes this emoji font will actually accept.
+
+        Apple Color Emoji is a bitmap (sbix) font: it only contains a handful of
+        fixed pixel strikes, and asking for any other size raises
+        ``OSError: invalid pixel size``. On macOS the accepted set is roughly
+        20/32/40/48/64/96/160, so the demo's old ``round(size/8)*8`` sizing
+        crashed as soon as it landed on 28, 56, 72, 80 and so on. Scalable fonts
+        (Noto, Segoe UI Emoji) accept everything and this returns empty, which
+        disables the snapping below.
+        """
+        if self.font_path is None:
+            return []
+        candidates = [16, 20, 24, 28, 32, 40, 48, 56, 64, 72, 80, 96, 128, 160, 256]
+        supported = []
+        for size in candidates:
+            try:
+                ImageFont.truetype(str(self.font_path), size)
+            except OSError:
+                continue
+            supported.append(size)
+        # Every size worked => scalable font, no snapping needed.
+        return [] if len(supported) == len(candidates) else supported
+
+    def _snap_size(self, size: int) -> int:
+        """Nearest size the font can actually render."""
+        if not self.supported_sizes:
+            return size
+        return min(self.supported_sizes, key=lambda s: (abs(s - size), s))
 
     def _sprite(self, gesture: str, requested_size: int) -> np.ndarray:
         text = GESTURE_EMOJIS[gesture]
@@ -1802,9 +1833,10 @@ class EmojiRenderer:
         key = (text, font_size)
         if key in self.cache:
             return self.cache[key]
-        font = ImageFont.truetype(str(self.font_path), font_size)
+        render_size = self._snap_size(font_size)
+        font = ImageFont.truetype(str(self.font_path), render_size)
         bounds = font.getbbox(text)
-        margin = max(4, font_size // 12)
+        margin = max(4, render_size // 12)
         image = Image.new(
             "RGBA",
             (max(1, bounds[2] - bounds[0] + 2 * margin),
@@ -1817,6 +1849,14 @@ class EmojiRenderer:
             drawing.text(position, text, font=font, embedded_color=True)
         except (TypeError, ValueError, OSError):
             drawing.text(position, text, font=font, fill=(255, 255, 255, 255))
+        # Rendered at a strike the font supports; scale to the size actually
+        # asked for so reactions still grow and shrink smoothly.
+        if render_size != font_size and image.width > 0 and image.height > 0:
+            scale = font_size / render_size
+            image = image.resize(
+                (max(1, int(image.width * scale)), max(1, int(image.height * scale))),
+                Image.LANCZOS,
+            )
         sprite = np.asarray(image, dtype=np.uint8)
         self.cache[key] = sprite
         return sprite
