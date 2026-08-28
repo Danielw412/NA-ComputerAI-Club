@@ -1,0 +1,153 @@
+@import 'tailwindcss';
+
+/*
+ * Palette. --color-gold is sampled straight out of public/na-club-logo.png
+ * (dominant non-black/white pixel = #FAAA13). Do not eyeball a replacement.
+ */
+@theme {
+  --color-bg: #0a0a0a;
+  --color-surface: #141414;
+  --color-gold: #faaa13;
+  --color-gold-dim: #8a6800;
+  --color-ink: #f5f0e6;
+  --color-muted: #8a8580;
+  --color-danger: #ff3b30;
+  --font-display: 'Anton', 'Arial Narrow', system-ui, sans-serif;
+}
+
+/* Self-hosted: no Google Fonts request at runtime, works fully offline. */
+@font-face {
+  font-family: 'Anton';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/anton-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+}
+
+.display {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* The preview is a mirror: players expect their right hand on the right. */
+.mirrored {
+  transform: scaleX(-1);
+}
+
+/* --- Rep feedback: the number snaps up and back. Reps are the dopamine. --- */
+@keyframes rep-pop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.rep-pop {
+  animation: rep-pop 90ms ease-out;
+}
+
+/* Gold sweep along the screen edge on every counted rep. */
+@keyframes edge-flash {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.edge-flash {
+  animation: edge-flash 220ms ease-out forwards;
+  box-shadow:
+    inset 0 0 60px 10px var(--color-gold),
+    inset 0 0 140px 30px rgba(250, 170, 19, 0.35);
+}
+
+/* --- Countdown digits slam in. --- */
+@keyframes slam {
+  0% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+  45% {
+    transform: scale(0.92);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.slam {
+  animation: slam 380ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+/* --- Final three seconds. --- */
+@keyframes danger-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+.danger-pulse {
+  animation: danger-pulse 500ms ease-in-out infinite;
+}
+
+@keyframes lead-glow {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+.lead-glow {
+  animation: lead-glow 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rep-pop,
+  .slam,
+  .danger-pulse,
+  .lead-glow,
+  .edge-flash {
+    animation: none;
+  }
+}
