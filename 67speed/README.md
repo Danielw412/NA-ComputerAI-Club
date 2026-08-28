@@ -4,6 +4,169 @@ Browser-based webcam speed challenge for the NA Computer & AI Club. The frontend
 
 Production URL: `https://67.naclubs.net`
 
+## How it works
+
+The whole game is one question: **how do you count arm pumps from a webcam,
+fast enough and reliably enough that a stranger trusts the number?**
+
+<!-- Screenshots welcome here — drop PNGs in a docs/ folder and link them. -->
+
+### 1. Pose, not hands
+
+The obvious approach is hand tracking. It does not work. Someone pumping their
+arms as hard as they can produces heavy motion blur, and hand landmarkers lose
+the hand exactly when the game gets interesting.
+
+Whole-body pose estimation survives blur far better, because it infers joint
+positions from the shape of the entire body rather than from fine finger
+detail. So the game runs MediaPipe's **PoseLandmarker** (the `lite` model,
+float16) and only ever looks at six of its 33 landmarks: two shoulders, two
+elbows, two wrists — plus the hips as a size reference.
+
+```mermaid
+flowchart LR
+  A["Webcam<br/>1280x720"] --> B["Downscale<br/>640x360"]
+  B --> C["MediaPipe<br/>PoseLandmarker"]
+  C --> D["33 body landmarks"]
+  D --> E["Normalise to<br/>h = wrist height / torso length"]
+  E --> F["Schmitt trigger<br/>one per wrist"]
+  F --> G["Rep count"]
+  G --> H["Leaderboard<br/>Supabase"]
+```
+
+The camera stays at full resolution for what you see, while inference runs on a
+downscaled copy. The model resizes its input to 256x256 internally anyway, so
+640x360 costs nothing in accuracy and makes each frame cheaper to hand to the
+GPU.
+
+### 2. Turning a body into one number
+
+Raw pixel coordinates are useless: stand closer and every distance doubles. So
+each wrist is measured as a **ratio**:
+
+```
+h = (shoulder height - wrist height) / torso length
+```
+
+`h = 0` means the wrist is level with the shoulder, `h = 1` means it is a full
+torso-length above it. Two useful properties fall out of this for free:
+
+- **Scale invariance.** Divide by torso length and it no longer matters whether
+  you are one metre from the camera or three.
+- **Shake invariance — the anti-cheat.** `h` is a *difference* between two body
+  parts. Shake the laptop and the shoulder and the wrist move together, so the
+  difference barely changes. Waving the camera around scores you nothing. Only
+  moving your arm *relative to your own body* counts.
+
+### 3. Counting without double-counting
+
+A naive "wrist is above the line" test fires dozens of times per pump, because
+the signal jitters across the line. The fix is a **Schmitt trigger**: two
+thresholds instead of one, with a gap between them.
+
+```mermaid
+stateDiagram-v2
+  [*] --> Down
+  Down --> Up: h rises past the UPPER threshold
+  Up --> Down: h falls past the LOWER threshold — count +1
+```
+
+The rep is counted on the way *down*, so you have to complete the motion. Each
+wrist runs its own independent trigger, which is why alternating your arms
+scores faster than pumping both together. A 70 ms debounce per wrist rejects
+anything faster than a human arm can actually move.
+
+### 4. The thresholds tune themselves
+
+The first version used fixed thresholds, and it was quietly broken. Two
+different players got completely different results, and one person's right arm
+would refuse to register at all. There were two causes:
+
+- If your shoulders are even slightly tilted, the shoulder *midpoint* sits above
+  one shoulder and below the other, pushing the two arms in opposite directions.
+- Someone pumping at chest height peaks around `h = 0.2` and never reaches a
+  threshold set at `0.35` — so they score zero while feeling like they are
+  working hard.
+
+So the thresholds became **relative to each wrist's own recent range of motion**,
+measured over a 700 ms sliding window, with the trigger points at 65% and 35% of
+that range. Pump small and the window shrinks to match; pump overhead and it
+grows. A minimum range requirement keeps someone standing still — or just
+gesturing while they talk — from scoring.
+
+The difference, measured against simulated players with known rep counts:
+
+| Player style | Fixed thresholds | Self-calibrating |
+| --- | --- | --- |
+| Overhead pumping | 100% | 100% |
+| Chest-height pumping | **0%** | 100% |
+| Small, fast pumps | **0%** | 100% |
+| One arm riding low (tilted stance) | **0%** | 100% |
+| Getting tired mid-run | 100% | 100% |
+| Standing still (false positives) | none | none |
+
+### 5. Tuned by simulation, not by feel
+
+Those window and threshold numbers were not guessed. `npm run tune` generates
+synthetic arm-pump signals with **known** rep counts — fast, slow, tiny, tiring,
+noisy, dropping out, plus several "player is standing still" cases — and sweeps
+the parameters to find the settings with the lowest total error.
+
+Worth noting: the sweep's best-scoring configuration was **not** the one shipped.
+It sat at the edge of the search range and collapsed completely on slow pumps,
+because its window was too short to contain a full pump cycle. The shipped
+settings are the ones that never fall below 97% on *any* scenario. Optimising a
+single number is how you get a benchmark score; checking the failure cases is
+how you get something that works at a fair.
+
+### 6. Staying at 30+ fps
+
+Inference is synchronous, so the loop never lets work pile up: it refuses to run
+twice on the same camera frame, and if a frame takes longer than 40 ms it starts
+processing every other one instead of falling behind. Rendering never waits on
+React either — the per-frame code writes to refs and draws straight to a canvas,
+and React state is published on a throttle.
+
+### 7. Your camera never leaves your device
+
+There is no upload, no recording, and no transmission of video anywhere. The
+code contains no frame-export calls at all — no `toDataURL`, no `MediaRecorder`,
+no `captureStream` — so frames physically cannot leave the browser. The only
+network requests the app makes are the three leaderboard queries.
+
+The leaderboard stores four things, and only if you choose to submit: the name
+you type, your score and mode, whether you won a duel, and the timestamp.
+
+### 8. The leaderboard is append-only
+
+The `scores` table can be read and inserted into by the public, and **never
+updated or deleted** — there is deliberately no policy granting either. Showing
+one row per player is done with a database *view* rather than by letting the
+browser overwrite rows, because an update permission that lets you edit your own
+score also lets you edit everybody else's.
+
+`npm run check:db -- --write` verifies all of this against the live database,
+including that deletes are refused and that a solo run cannot be recorded as a
+duel win.
+
+### Where the code lives
+
+| Path | What it does |
+| --- | --- |
+| `src/lib/pose/tracker.ts` | Camera, MediaPipe setup, the inference loop |
+| `src/lib/pose/landmarks.ts` | Turns landmarks into the scale-invariant `h` |
+| `src/lib/pose/repCounter.ts` | The self-calibrating trigger — the actual game |
+| `src/lib/pose/overlay.ts` | The gold skeleton drawn over the video |
+| `src/game/useGame.ts` | Countdown, 20-second clock, pose gating |
+| `src/lib/leaderboard.ts` | Supabase reads/writes with an offline fallback |
+| `scripts/tuneAuto.ts` | The offline parameter sweep described above |
+
+Press **D** while playing for a live diagnostic panel: frame rate, inference
+cost, and a real-time graph of `h` for each wrist with the moving thresholds
+drawn over it.
+
+---
+
 ## Local development
 
 ```bash
