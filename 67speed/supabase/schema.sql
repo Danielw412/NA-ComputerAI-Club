@@ -13,12 +13,29 @@ create table if not exists public.scores (
 
   constraint scores_name_format check (name ~ '^[A-Z]{3}$'),
   constraint scores_score_range check (score between 1 and 500),
-  constraint scores_mode_check check (mode in ('solo', 'duel'))
+  constraint scores_mode_check check (mode in ('solo', 'duel')),
+  -- Only a duel can be won. Enforced as a CHECK, not just in the RLS policy,
+  -- so it holds no matter which policy or role does the insert. Verified live:
+  -- without this, a crafted solo row with won=true was accepted (2026-08-27).
+  constraint scores_won_only_duel check (won = false or mode = 'duel')
 );
 
 -- Matches the frontend query: highest score first, then oldest score for ties.
 create index if not exists scores_score_created_idx
   on public.scores (score desc, created_at asc);
+
+-- `create table if not exists` above is a no-op on an existing table, so the
+-- constraint has to be added separately when upgrading a live database.
+-- This fails if violating rows exist — delete them first, that is intentional.
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'scores_won_only_duel'
+  ) then
+    alter table public.scores
+      add constraint scores_won_only_duel check (won = false or mode = 'duel');
+  end if;
+end $$;
 
 alter table public.scores enable row level security;
 

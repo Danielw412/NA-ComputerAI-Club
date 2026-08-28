@@ -95,7 +95,29 @@ try {
   bad(`constraint check failed — ${(err as Error).message}`)
 }
 
-// 3. The MOST WINS board reads a view; a missing view is a silent empty board.
+// 3. Anti-farming: a solo run must never be recordable as a duel win.
+//    This was a REAL hole on 2026-08-27 — the live policy accepted it — so the
+//    check stays permanently. It is a rejection test, so it leaves no row.
+try {
+  const res = await fetch(`${URL_}/rest/v1/scores`, {
+    method: 'POST',
+    headers: { ...headers, Prefer: 'return=minimal' },
+    body: JSON.stringify({ name: 'HAX', score: 400, mode: 'solo', won: true }),
+  })
+  if (res.ok) {
+    failures++
+    bad('a SOLO row with won=true was ACCEPTED — the MOST WINS board can be farmed')
+    info('Delete the stray HAX row, then re-run supabase/schema.sql to add')
+    info('the scores_won_only_duel constraint.')
+  } else {
+    ok(`fake duel wins rejected server-side (${res.status})`)
+  }
+} catch (err) {
+  failures++
+  bad(`win-farming check failed — ${(err as Error).message}`)
+}
+
+// 4. The MOST WINS board reads a view; a missing view is a silent empty board.
 try {
   const res = await fetch(`${URL_}/rest/v1/win_counts?select=name,wins,best_score&limit=5`, {
     headers,
@@ -114,7 +136,7 @@ try {
 }
 
 if (process.argv.includes('--write')) {
-  // 4. Insert policy.
+  // 5. Insert policy.
   let inserted = false
   try {
     const res = await fetch(`${URL_}/rest/v1/scores`, {
@@ -134,7 +156,7 @@ if (process.argv.includes('--write')) {
     bad(`insert failed — ${(err as Error).message}`)
   }
 
-  // 5. Delete MUST be refused. This is the security property that matters.
+  // 6. Delete MUST be refused. This is the security property that matters.
   try {
     const res = await fetch(`${URL_}/rest/v1/scores?name=eq.TST`, { method: 'DELETE', headers })
     const body = await res.text()
