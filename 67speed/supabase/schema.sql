@@ -19,7 +19,10 @@ create index if not exists scores_score_created_idx
 
 alter table public.scores enable row level security;
 
+grant usage on schema public to anon;
+
 -- Start from no public table privileges, then grant only what the browser needs.
+revoke all on table public.scores from public;
 revoke all on table public.scores from anon;
 revoke all on table public.scores from authenticated;
 
