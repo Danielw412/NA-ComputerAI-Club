@@ -4,7 +4,7 @@
  * Framework-agnostic on purpose: the React layer just starts it, stops it, and
  * reads frames. Nothing here knows about game modes.
  *
- * Everything loads from vendored relative paths under /public — no CDN at
+ * Everything loads from vendored relative paths under /public - no CDN at
  * runtime, so this works on venue wifi or fully offline.
  */
 import {
@@ -124,7 +124,7 @@ export class PoseTracker {
     this.landmarker = await PoseLandmarker.createFromOptions(fileset, {
       baseOptions: {
         modelAssetPath: MODEL_PATH,
-        // WebGL, not WebGPU — MediaPipe's web vision tasks do not support WebGPU.
+        // WebGL, not WebGPU - MediaPipe's web vision tasks do not support WebGPU.
         delegate: 'GPU',
       },
       runningMode: 'VIDEO',

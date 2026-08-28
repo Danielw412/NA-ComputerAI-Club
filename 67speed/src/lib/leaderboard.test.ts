@@ -1,6 +1,6 @@
 /**
  * Name rules for the leaderboard. These matter because the same shape is
- * enforced by a database CHECK constraint — if these two ever disagree, players
+ * enforced by a database CHECK constraint - if these two ever disagree, players
  * get a silent rejected insert at a booth with no way to diagnose it.
  */
 import { test } from 'node:test'

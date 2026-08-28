@@ -1,5 +1,5 @@
 /**
- * Raw tracker harness — kept from build step 2 so counter accuracy can still be
+ * Raw tracker harness - kept from build step 2 so counter accuracy can still be
  * checked by hand at any time (home screen -> "tracker test"). Not the game UI.
  */
 import type { UsePoseTracker } from '../hooks/usePoseTracker'
@@ -12,15 +12,15 @@ export function TrackerTest({ tracker, onExit }: { tracker: UsePoseTracker; onEx
 
   if (!running) {
     return (
-      <div className="relative z-20 flex h-full flex-col items-center justify-center gap-6 text-center">
-        <h1 className="display text-5xl tracking-[0.1em] text-gold">TRACKER TEST</h1>
-        <p className="max-w-lg text-sm text-muted">
+      <div className="safe-bottom relative z-20 flex h-full flex-col items-center justify-center gap-5 overflow-y-auto px-4 pt-16 text-center sm:gap-6 sm:px-6 sm:pt-0">
+        <h1 className="display text-4xl tracking-[0.08em] text-gold sm:text-5xl sm:tracking-[0.1em]">TRACKER TEST</h1>
+        <p className="max-w-lg text-sm leading-relaxed text-muted">
           Count your pumps out loud and compare. Press D for traces and diagnostics.
         </p>
         <button
           onClick={() => void tracker.start()}
           disabled={tracker.status === 'starting'}
-          className="display border-2 border-gold px-10 py-4 text-2xl tracking-[0.15em] text-gold hover:bg-gold/15 disabled:opacity-50"
+          className="display w-full max-w-sm border-2 border-gold px-6 py-4 text-xl tracking-[0.12em] text-gold hover:bg-gold/15 disabled:opacity-50 sm:w-auto sm:px-10 sm:text-2xl sm:tracking-[0.15em]"
         >
           {tracker.status === 'starting' ? 'LOADING MODEL…' : 'START CAMERA'}
         </button>
@@ -36,7 +36,7 @@ export function TrackerTest({ tracker, onExit }: { tracker: UsePoseTracker; onEx
   }
 
   return (
-    <div className="relative z-20 flex h-full flex-col justify-between p-8">
+    <div className="scroll-dark safe-bottom relative z-20 flex h-full flex-col justify-between gap-8 overflow-y-auto p-4 pt-16 sm:p-8">
       <div className="flex items-start justify-end gap-2">
         <button
           onClick={() => {
@@ -50,25 +50,25 @@ export function TrackerTest({ tracker, onExit }: { tracker: UsePoseTracker; onEx
       </div>
 
       <div className="font-mono">
-        <div className="flex items-baseline gap-6">
+        <div className="flex items-baseline gap-3 sm:gap-6">
           <span className="text-sm uppercase tracking-[0.3em] text-muted">reps</span>
-          <span className="tnum display text-[10rem] leading-none text-gold">
+          <span className="tnum display text-[clamp(7rem,40vw,10rem)] leading-none text-gold">
             {p1?.count ?? 0}
           </span>
         </div>
-        <div className="mt-2 flex gap-10">
+        <div className="mt-2 grid grid-cols-2 gap-4 sm:flex sm:gap-10">
           <ArmReadout label="LEFT ARM" w={p1?.left} />
           <ArmReadout label="RIGHT ARM" w={p1?.right} />
         </div>
-        <p className="mt-3 text-sm text-muted">
-          scale {(p1?.scale ?? 0).toFixed(3)} ({p1?.scaleSource ?? '—'}) · poses{' '}
+        <p className="mt-3 break-words text-xs leading-relaxed text-muted sm:text-sm">
+          scale {(p1?.scale ?? 0).toFixed(3)} ({p1?.scaleSource ?? 'not available'}) · poses{' '}
           {tracker.snapshot.poseCount} ·{' '}
-          {p1?.valid ? 'tracking' : 'NO VALID POSE — shoulders must be visible'}
+          {p1?.valid ? 'tracking' : 'NO VALID POSE. Shoulders must be visible.'}
         </p>
       </div>
 
-      <div className="flex items-end justify-between font-mono text-xs uppercase tracking-[0.2em] text-muted">
-        <span>100% on-device — nothing leaves your computer</span>
+      <div className="flex flex-col gap-2 font-mono text-[10px] uppercase leading-relaxed tracking-[0.12em] text-muted sm:flex-row sm:items-end sm:justify-between sm:text-xs sm:tracking-[0.2em]">
+        <span>100% on-device. Camera images stay on your computer.</span>
         <span className="tnum">
           {tracker.snapshot.fps.toFixed(0)} fps · {tracker.snapshot.inferenceMs.toFixed(1)} ms ·{' '}
           {tracker.config.mode} · press D

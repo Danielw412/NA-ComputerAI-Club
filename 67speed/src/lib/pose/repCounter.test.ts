@@ -2,8 +2,8 @@
  * Rep counter regression tests. Run: npm test
  *
  * These drive the state machine with synthetic `h` trajectories, so they check
- * the counting rules themselves — auto-calibration, hysteresis, debounce,
- * dropout handling — without needing a camera or a human waving their arms.
+ * the counting rules themselves - auto-calibration, hysteresis, debounce,
+ * dropout handling - without needing a camera or a human waving their arms.
  */
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -86,7 +86,7 @@ test('manual: debounce suppresses counts faster than the window', () => {
 // ------------------------------------------------------------------ auto mode
 
 test('auto: counts chest-height pumps that fixed thresholds would miss', () => {
-  // Peak h ~0.30 — never reaches the fixed UP_THRESHOLD of 0.35.
+  // Peak h ~0.30 - never reaches the fixed UP_THRESHOLD of 0.35.
   const manual = new PlayerRepCounter()
   const auto = new PlayerRepCounter()
   let t = 0
@@ -147,7 +147,7 @@ test('auto: recovers within about one window when the player tires', () => {
   assert.ok(afterBig >= 8, `big pumps counted, got ${afterBig}`)
 
   // Amplitude collapses to a third. The sliding window still holds the old
-  // peaks, so counting pauses for up to autoWindowMs — that is the designed
+  // peaks, so counting pauses for up to autoWindowMs - that is the designed
   // trade-off, not a bug. Give it one window plus a margin.
   const settleUntil = t + AUTO.autoWindowMs
   while (t < settleUntil) t = pump(c, t, AUTO, 0, 0.35)
@@ -272,7 +272,7 @@ test('geometry: mid reference is what skews the two arms apart under tilt', () =
   const m = computePoseMetrics(pose, 16 / 9, { ...GEO, reference: 'mid' })
   assert.ok(
     Math.abs(m.left.h - m.right.h) > 0.2,
-    'mid reference offsets the arms in opposite directions — the original bug',
+    'mid reference offsets the arms in opposite directions - the original bug',
   )
 })
 

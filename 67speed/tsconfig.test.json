@@ -7,7 +7,7 @@
     "types": ["node", "vite/client"],
     "skipLibCheck": true,
 
-    /* Bundler mode — matches how the source under test is written. */
+    /* Bundler mode - matches how the source under test is written. */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,

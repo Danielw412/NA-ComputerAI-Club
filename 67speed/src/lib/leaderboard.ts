@@ -1,7 +1,7 @@
 /**
  * All-time leaderboard.
  *
- * Talks to Supabase over its PostgREST endpoint with plain fetch — no SDK
+ * Talks to Supabase over its PostgREST endpoint with plain fetch - no SDK
  * dependency, nothing extra in the bundle. If Supabase is not configured, or
  * the network is down at the venue, everything falls back to localStorage and
  * the game keeps working. A leaderboard outage must never block play.
@@ -100,7 +100,7 @@ export function setPersonalBest(score: number): void {
  *
  * Deliberately NO profanity blocklist. With three-letter initials a blocklist
  * worked, but against free-text names substring matching is worse than useless
- * — it rejects real people (Dickson, Hancock, Cummings) while anyone determined
+ * - it rejects real people (Dickson, Hancock, Cummings) while anyone determined
  * just adds a space. Alex moderates by deleting individual rows instead, which
  * is the only approach that stays correct.
  *
@@ -174,9 +174,9 @@ async function submitRemote(entry: ScoreEntry): Promise<void> {
 
 /**
  * Where the board came from.
- *   'remote'    — live from Supabase, the real all-time board.
- *   'offline'   — Supabase is configured but unreachable right now.
- *   'unset'     — no Supabase credentials in this build (setup state, not an
+ *   'remote'    - live from Supabase, the real all-time board.
+ *   'offline'   - Supabase is configured but unreachable right now.
+ *   'unset'     - no Supabase credentials in this build (setup state, not an
  *                 error). The UI stays quiet about this rather than telling
  *                 players the board is local when a backend is on the way.
  */
@@ -192,7 +192,7 @@ export interface LeaderboardResult {
 /**
  * One row per name, keeping that name's best run, highest score first.
  *
- * Mirrors the `best_scores` view exactly — same tie-break (earliest wins), same
+ * Mirrors the `best_scores` view exactly - same tie-break (earliest wins), same
  * shape. Offline and online boards must agree or the leaderboard appears to
  * change when the network drops.
  *
@@ -218,7 +218,7 @@ export async function getTop(): Promise<LeaderboardResult> {
     try {
       return { entries: rank(await fetchRemote()), source: 'remote', online: true }
     } catch {
-      // Supabase configured but unreachable — fall back so the booth keeps
+      // Supabase configured but unreachable - fall back so the booth keeps
       // running, and say so honestly.
       return { entries: rank(readLocal()), source: 'offline', online: false }
     }
@@ -237,7 +237,7 @@ export function qualifies(score: number, entries: ScoreEntry[]): boolean {
  * MOST WINS board.
  *
  * Served by the `win_counts` view when Supabase is reachable. Offline we
- * aggregate the local rows ourselves so the board still shows something —
+ * aggregate the local rows ourselves so the board still shows something -
  * the two paths must agree on the rule: duel victories only.
  */
 export async function getWins(): Promise<{ entries: WinEntry[]; source: LeaderboardSource }> {

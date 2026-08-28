@@ -2,7 +2,7 @@
  * Verifies the Supabase leaderboard wiring end to end. Run: npm run check:db
  *
  * Read test always runs. Pass --write to additionally prove that inserts are
- * allowed and that deletes are NOT — i.e. that RLS is actually protecting the
+ * allowed and that deletes are NOT - i.e. that RLS is actually protecting the
  * table rather than just appearing to.
  *
  *   npm run check:db
@@ -37,7 +37,7 @@ if (!URL_ || !KEY) {
   console.log('\nSupabase is not configured.\n')
   info('Create 67speed/.env.local with VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.')
   info('See 67speed/README.md for the full setup, schema, and policies.')
-  info('The game still works without this — the board falls back to local scores.')
+  info('The game still works without this - the board falls back to local scores.')
   process.exit(1)
 }
 
@@ -62,17 +62,17 @@ try {
   })
   if (res.ok) {
     const rows = (await res.json()) as unknown[]
-    ok(`read works — ${rows.length} row(s) on the board`)
+    ok(`read works - ${rows.length} row(s) on the board`)
   } else {
     failures++
     const body = await res.text()
-    bad(`read failed (${res.status}) — ${body.slice(0, 200)}`)
+    bad(`read failed (${res.status}) - ${body.slice(0, 200)}`)
     if (res.status === 404) info('Table "scores" not found. Run the SQL in CLAUDE.md section 7.')
     if (res.status === 401) info('Check the anon key, and that the "public read" policy exists.')
   }
 } catch (err) {
   failures++
-  bad(`read failed — ${(err as Error).message}`)
+  bad(`read failed - ${(err as Error).message}`)
 }
 
 // 2. Constraint check: a malformed name must be rejected by the DATABASE, not
@@ -85,18 +85,18 @@ try {
   })
   if (res.ok) {
     failures++
-    bad('a name containing digits was ACCEPTED — the check constraint is missing')
+    bad('a name containing digits was ACCEPTED - the check constraint is missing')
     info('Re-run the create table statement in CLAUDE.md section 7.')
   } else {
     ok(`malformed names rejected server-side (${res.status})`)
   }
 } catch (err) {
   failures++
-  bad(`constraint check failed — ${(err as Error).message}`)
+  bad(`constraint check failed - ${(err as Error).message}`)
 }
 
 // 3. Anti-farming: a solo run must never be recordable as a duel win.
-//    This was a REAL hole on 2026-08-27 — the live policy accepted it — so the
+//    This was a REAL hole on 2026-08-27 - the live policy accepted it - so the
 //    check stays permanently. It is a rejection test, so it leaves no row.
 try {
   const res = await fetch(`${URL_}/rest/v1/scores`, {
@@ -109,7 +109,7 @@ try {
   })
   if (res.ok) {
     failures++
-    bad('a SOLO row with won=true was ACCEPTED — the MOST WINS board can be farmed')
+    bad('a SOLO row with won=true was ACCEPTED - the MOST WINS board can be farmed')
     info('This check LEAVES A ROW while the hole is open (it should have been')
     info('rejected). Delete every HAX row, then re-run supabase/schema.sql to')
     info('install the scores_won_only_duel constraint, then re-run this check.')
@@ -118,7 +118,7 @@ try {
   }
 } catch (err) {
   failures++
-  bad(`win-farming check failed — ${(err as Error).message}`)
+  bad(`win-farming check failed - ${(err as Error).message}`)
 }
 
 // 4. The FASTEST board reads a deduplicating view; a missing view means the
@@ -134,18 +134,18 @@ try {
     const unique = new Set(names)
     if (names.length !== unique.size) {
       failures++
-      bad('best_scores returned duplicate names — the view is not deduplicating')
+      bad('best_scores returned duplicate names - the view is not deduplicating')
     } else {
-      ok(`best_scores view works — ${rows.length} unique name(s)`)
+      ok(`best_scores view works - ${rows.length} unique name(s)`)
     }
   } else {
     failures++
-    bad(`best_scores view unreadable (${res.status}) — FASTEST board will be empty`)
+    bad(`best_scores view unreadable (${res.status}) - FASTEST board will be empty`)
     info('Re-run supabase/schema.sql; it creates the view and grants select on it.')
   }
 } catch (err) {
   failures++
-  bad(`best_scores check failed — ${(err as Error).message}`)
+  bad(`best_scores check failed - ${(err as Error).message}`)
 }
 
 // 5. The MOST WINS board reads a view; a missing view is a silent empty board.
@@ -155,15 +155,15 @@ try {
   })
   if (res.ok) {
     const rows = (await res.json()) as unknown[]
-    ok(`win_counts view works — ${rows.length} name(s) with duel wins`)
+    ok(`win_counts view works - ${rows.length} name(s) with duel wins`)
   } else {
     failures++
-    bad(`win_counts view unreadable (${res.status}) — MOST WINS will show empty`)
+    bad(`win_counts view unreadable (${res.status}) - MOST WINS will show empty`)
     info('Re-run supabase/schema.sql; it creates the view and grants select on it.')
   }
 } catch (err) {
   failures++
-  bad(`win_counts check failed — ${(err as Error).message}`)
+  bad(`win_counts check failed - ${(err as Error).message}`)
 }
 
 if (process.argv.includes('--write')) {
@@ -180,18 +180,18 @@ if (process.argv.includes('--write')) {
     })
     if (res.ok) {
       inserted = true
-      ok('insert works — full names accepted (added "Check Bot", score 1)')
+      ok('insert works - full names accepted (added "Check Bot", score 1)')
     } else {
       failures++
       const body = await res.text()
     bad(`insert of a normal full name FAILED (${res.status})`)
     info(body.slice(0, 240))
     info('If this names a check constraint, a stale one is still on the table.')
-    info('Re-run supabase/schema.sql — it drops legacy 3-letter constraints.')
+    info('Re-run supabase/schema.sql - it drops legacy 3-letter constraints.')
     }
   } catch (err) {
     failures++
-    bad(`insert failed — ${(err as Error).message}`)
+    bad(`insert failed - ${(err as Error).message}`)
   }
 
   // 7. Delete MUST be refused. This is the security property that matters.
@@ -205,12 +205,12 @@ if (process.argv.includes('--write')) {
       ok(`delete refused (${res.status})`)
     } else {
       failures++
-      bad('DELETE APPEARS TO HAVE WORKED — anyone could wipe your leaderboard')
+      bad('DELETE APPEARS TO HAVE WORKED - anyone could wipe your leaderboard')
       info('Make sure you did NOT create a delete policy for the anon role.')
     }
   } catch (err) {
     failures++
-    bad(`delete check failed — ${(err as Error).message}`)
+    bad(`delete check failed - ${(err as Error).message}`)
   }
 
   if (inserted) info('Remove the "Check Bot" row from the Supabase table editor when done.')

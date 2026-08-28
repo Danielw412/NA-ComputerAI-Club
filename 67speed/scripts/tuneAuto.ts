@@ -34,7 +34,7 @@ interface Scenario {
   amp: (t: number) => number
   /** pump frequency in Hz at time t */
   freq: (t: number) => number
-  /** vertical offset — simulates a wrist that rides low (shoulder tilt) */
+  /** vertical offset - simulates a wrist that rides low (shoulder tilt) */
   base?: number
   noise?: number
   /** fraction of frames where the pose is lost entirely */
@@ -128,7 +128,7 @@ function score(cfg: RepConfig): { err: number; rows: string[] } {
       e += sc.still ? r.counted * 3 : Math.abs(r.counted - r.truth)
     }
     err += e / 3
-    const pct = truth > 0 ? ((counted / truth) * 100).toFixed(0) + '%' : '—'
+    const pct = truth > 0 ? ((counted / truth) * 100).toFixed(0) + '%' : '-'
     rows.push(
       `    ${sc.name.padEnd(24)} counted ${String(Math.round(counted / 3)).padStart(3)}` +
         ` / truth ${String(Math.round(truth / 3)).padStart(3)}  (${pct})`,
@@ -205,7 +205,7 @@ for (const [label, patch] of candidates) {
   const r = score(c)
   const worst = r.rows
     .map((row) => row.trim())
-    .filter((row) => !row.includes('100%') && !row.includes('(—)'))
+    .filter((row) => !row.includes('100%') && !row.includes('(-)'))
   console.log(`  ${label.padEnd(20)} err ${r.err.toFixed(1).padStart(6)}   ${worst.join(' | ') || 'all exact'}`)
 }
 

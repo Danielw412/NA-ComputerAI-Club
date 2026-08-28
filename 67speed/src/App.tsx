@@ -60,7 +60,7 @@ export default function App() {
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-bg">
+    <div className="app-shell relative w-full overflow-hidden bg-bg">
       {/* Camera layers. The tracker owns the <video>; we just host it. */}
       <div ref={tracker.mountRef} className="mirrored absolute inset-0" />
       <canvas
@@ -84,8 +84,9 @@ export default function App() {
       <button
         onClick={toggleMute}
         title={muted ? 'Unmute' : 'Mute'}
-        className="absolute top-4 right-4 z-40 border border-white/20 px-3 py-1.5 text-xs uppercase tracking-[0.2em] text-muted hover:bg-white/5"
-        style={{ right: view === 'game' && !atHome ? '5.5rem' : '1rem' }}
+        className={`sound-toggle absolute z-40 border border-white/20 bg-bg/70 px-3 py-2 text-[10px] uppercase tracking-[0.16em] text-muted backdrop-blur-sm hover:bg-white/5 sm:text-xs sm:tracking-[0.2em] ${
+          view === 'game' && !atHome ? 'sound-toggle-game' : ''
+        }`}
       >
         {muted ? 'sound off' : 'sound on'}
       </button>

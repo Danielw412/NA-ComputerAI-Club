@@ -53,7 +53,7 @@ function Counter({
       <span
         key={popKey}
         className={`rep-pop tnum display leading-none text-gold ${
-          huge ? 'text-[18rem]' : 'text-[11rem]'
+          huge ? 'text-[clamp(8rem,50vw,18rem)]' : 'text-[clamp(5.5rem,30vw,11rem)]'
         }`}
         style={{ textShadow: '0 0 40px rgba(250,170,19,0.35)' }}
       >
@@ -90,7 +90,7 @@ export function GameScreen({ state, onQuit }: Props) {
         <div key={flashKey} className="edge-flash pointer-events-none absolute inset-0 z-30" />
       )}
 
-      {/* Milestone: a thick double shockwave and a gold wash. No number — it
+      {/* Milestone: a thick double shockwave and a gold wash. No number - it
           collided with the counter and read as a random digit above the score. */}
       {phase === 'running' && milestoneKey > 0 && (
         <div
@@ -99,10 +99,10 @@ export function GameScreen({ state, onQuit }: Props) {
         >
           <div className="milestone-wash absolute inset-0 bg-gold/25" />
           <div
-            className="milestone-ring absolute h-[30rem] w-[30rem] rounded-full border-[18px] border-gold"
+            className="milestone-ring absolute h-[min(30rem,78vw)] w-[min(30rem,78vw)] rounded-full border-[12px] border-gold sm:border-[18px]"
             style={{ boxShadow: '0 0 90px rgba(250,170,19,0.85), inset 0 0 60px rgba(250,170,19,0.5)' }}
           />
-          <div className="milestone-ring-2 absolute h-[30rem] w-[30rem] rounded-full border-[10px] border-ink/70" />
+          <div className="milestone-ring-2 absolute h-[min(30rem,78vw)] w-[min(30rem,78vw)] rounded-full border-[7px] border-ink/70 sm:border-[10px]" />
         </div>
       )}
 
@@ -117,18 +117,18 @@ export function GameScreen({ state, onQuit }: Props) {
             }`}
           />
           {/* The line is a hard rule for the whole run, not just the starting
-              position — crossing it confuses who's who. Repeated here because
+              position - crossing it confuses who's who. Repeated here because
               the pose-check hint is long gone by the time anyone would cross.
               Swaps to an explicit warning the moment both players are seen
               but not actually split across it. */}
           {(phase === 'countdown' || phase === 'running') && (
-            <div className="pointer-events-none absolute top-24 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap">
+            <div className="pointer-events-none absolute top-16 left-1/2 z-20 w-[calc(100%_-_7rem)] -translate-x-1/2 text-center sm:top-24 sm:w-auto sm:whitespace-nowrap">
               {sideViolation ? (
-                <p className="rise-in display border-2 border-danger bg-bg/90 px-5 py-2 text-xl tracking-[0.08em] text-danger shadow-[0_0_28px_rgba(255,59,48,0.5)]">
+                <p className="rise-in display border-2 border-danger bg-bg/90 px-3 py-2 text-sm leading-tight tracking-[0.06em] text-danger shadow-[0_0_28px_rgba(255,59,48,0.5)] sm:px-5 sm:text-xl sm:tracking-[0.08em]">
                   PLAYERS MUST BE ON OPPOSITE SIDES
                 </p>
               ) : (
-                <p className="bg-bg/60 px-4 py-1.5 text-sm font-semibold uppercase tracking-[0.2em] text-ink/80 backdrop-blur-sm">
+                <p className="bg-bg/60 px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink/80 backdrop-blur-sm sm:px-4 sm:text-sm sm:tracking-[0.2em]">
                   stay on your side of the line
                 </p>
               )}
@@ -160,7 +160,7 @@ export function GameScreen({ state, onQuit }: Props) {
         </div>
       )}
 
-      <div className="absolute top-4 right-4 z-30">
+      <div className="absolute top-3 right-3 z-30 sm:top-4 sm:right-4">
         <button
           onClick={onQuit}
           className="border border-white/25 px-3 py-1.5 text-[10px] uppercase tracking-[0.2em] text-muted hover:bg-white/5"
@@ -171,8 +171,8 @@ export function GameScreen({ state, onQuit }: Props) {
 
       {/* --- Pose gate --- */}
       {phase === 'poseCheck' && (
-        <div className="flex h-full flex-col items-center justify-center gap-6 text-center">
-          <div className="relative h-28 w-28">
+        <div className="mobile-landscape-compact flex h-full flex-col items-center justify-center gap-4 px-5 pt-12 text-center sm:gap-6 sm:px-8 sm:pt-0">
+          <div className="relative h-20 w-20 sm:h-28 sm:w-28">
             <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
               <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="4" />
               <circle
@@ -188,10 +188,10 @@ export function GameScreen({ state, onQuit }: Props) {
               />
             </svg>
           </div>
-          <p className="display max-w-3xl text-4xl tracking-[0.1em] text-ink">
+          <p className="display max-w-3xl text-2xl leading-tight tracking-[0.08em] text-ink sm:text-4xl sm:tracking-[0.1em]">
             {gateHint || 'HOLD STILL…'}
           </p>
-          <p className="text-xs uppercase tracking-[0.3em] text-muted">
+          <p className="max-w-md text-[10px] uppercase leading-relaxed tracking-[0.18em] text-muted sm:text-xs sm:tracking-[0.3em]">
             {mode === 'duel'
               ? 'two players · stay on your own side of the line, the whole run'
               : 'get your whole upper body in frame'}
@@ -204,7 +204,7 @@ export function GameScreen({ state, onQuit }: Props) {
         <div className="flex h-full items-center justify-center">
           <span
             key={countdownValue}
-            className="slam display text-[22rem] leading-none text-gold"
+            className="slam display text-[clamp(9rem,60vw,22rem)] leading-none text-gold"
             style={{ textShadow: '0 0 80px rgba(250,170,19,0.5)' }}
           >
             {countdownValue > 0 ? countdownValue : 'GO'}
@@ -221,7 +221,7 @@ export function GameScreen({ state, onQuit }: Props) {
           }`}
         >
           <div
-            className={`display tnum absolute top-8 left-1/2 -translate-x-1/2 text-5xl ${
+            className={`display tnum absolute top-16 left-1/2 -translate-x-1/2 text-4xl sm:top-8 sm:text-5xl ${
               danger ? 'danger-pulse text-danger' : 'text-ink'
             }`}
           >
@@ -231,7 +231,7 @@ export function GameScreen({ state, onQuit }: Props) {
           {mode === 'solo' ? (
             <Counter value={p1} huge />
           ) : (
-            <div className="flex w-full items-center justify-around">
+            <div className="flex w-full items-center justify-between gap-2 px-3 sm:justify-around sm:px-0">
               <Counter value={p1} label="P1" leading={p1 > p2} />
               <Counter value={p2} label="P2" leading={p2 > p1} />
             </div>

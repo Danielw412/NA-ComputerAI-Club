@@ -1,5 +1,5 @@
 /**
- * All game audio, synthesized with the Web Audio API. No audio files — nothing
+ * All game audio, synthesized with the Web Audio API. No audio files - nothing
  * to load, nothing to 404 on venue wifi.
  *
  * The AudioContext is created lazily on the first user gesture, because
@@ -115,7 +115,7 @@ export class GameAudio {
     this.tone({ freq: 240, durationMs: 900, type: 'square', gain: 0.12, sweepTo: 140 })
   }
 
-  /** Every 25 reps during a run — a short rising triad, louder than a tick. */
+  /** Every 25 reps during a run - a short rising triad, louder than a tick. */
   milestone(): void {
     const notes = [660, 880, 1170]
     notes.forEach((f, i) =>
