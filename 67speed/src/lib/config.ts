@@ -1,4 +1,4 @@
-/** Settings that must survive a reload — you will be adjusting these at the venue. */
+/** Settings that must survive a reload - you will be adjusting these at the venue. */
 import { DEFAULT_REP_CONFIG, type RepConfig } from './pose/repCounter'
 import { DEFAULT_TRACKER_OPTIONS, type TrackerOptions } from './pose/tracker'
 
@@ -19,7 +19,7 @@ function save(key: string, value: object): void {
   try {
     localStorage.setItem(key, JSON.stringify(value))
   } catch {
-    /* private mode / storage disabled — settings just won't persist */
+    /* private mode / storage disabled - settings just won't persist */
   }
 }
 

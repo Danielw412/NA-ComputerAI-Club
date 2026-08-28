@@ -45,7 +45,7 @@ export interface GameState {
   milestoneKey: number
   /**
    * Duel only. True when both players are tracked but not split across the
-   * centre divider — checked through countdown and the run itself, not just
+   * centre divider - checked through countdown and the run itself, not just
    * at the pose gate, since nothing stops two players drifting together once
    * they're already in.
    */
@@ -249,7 +249,7 @@ export function useGame(tracker: UsePoseTracker) {
       tracker.setTrackerOptions({ numPoses: mode === 'duel' ? 2 : 1 })
       const ok = await tracker.start()
       if (!ok) {
-        // Camera denied or unavailable — fall straight back to the home screen,
+        // Camera denied or unavailable - fall straight back to the home screen,
         // which is where the error message is shown. Otherwise the player would
         // stare at "HOLD STILL" forever with no camera running.
         phaseRef.current = 'home'

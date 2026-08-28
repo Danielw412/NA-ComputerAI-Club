@@ -33,7 +33,7 @@ create index if not exists scores_score_created_idx
 
 -- `create table if not exists` above is a no-op on an existing table, so the
 -- constraint has to be added separately when upgrading a live database.
--- This fails if violating rows exist — delete them first, that is intentional.
+-- This fails if violating rows exist - delete them first, that is intentional.
 do $$
 declare
   legacy text;

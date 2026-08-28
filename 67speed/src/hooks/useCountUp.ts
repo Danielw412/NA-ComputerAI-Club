@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
  * Rolls a number up from 0 to `target`. Used on the results screen so the score
  * lands with some weight instead of just appearing.
  *
- * Eases out, so it sprints then settles — the last few digits are the tense bit.
+ * Eases out, so it sprints then settles - the last few digits are the tense bit.
  */
 export function useCountUp(target: number, durationMs = 1100, startDelayMs = 0): number {
   const [value, setValue] = useState(0)

@@ -2,7 +2,7 @@
  * Results screen: the payoff. Score rolls up, confetti fires, the winner gets
  * the stage, and anyone who cracked the top 10 enters their name.
  *
- * In duel mode BOTH players can qualify — the loser of a 90-vs-88 match still
+ * In duel mode BOTH players can qualify - the loser of a 90-vs-88 match still
  * beat the board, and pretending otherwise would be unfair. They enter names
  * one after the other.
  */
@@ -138,7 +138,7 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
     setSaveWarning(
       result.saved === 'remote'
         ? null
-        : 'Saved on this computer only — the online board could not be reached.',
+        : 'Saved on this computer only. The online board could not be reached.',
     )
     setSavedCount((n) => n + 1)
     setName('')
@@ -159,11 +159,12 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
   }, [mode, tie, winnerIndex, isNewPersonalBest])
 
   return (
-    <div className="scroll-dark relative z-20 flex h-full flex-col items-center justify-center gap-5 overflow-y-auto px-6 py-8 text-center">
+    <div className="scroll-dark relative z-20 h-full overflow-y-auto text-center">
+      <div className="safe-bottom mobile-landscape-compact flex min-h-full flex-col items-center justify-center gap-4 px-4 pt-16 sm:gap-5 sm:px-6 sm:py-8">
       <Confetti fire={confettiFire} mode={mode === 'duel' ? 'cannons' : 'center'} />
 
       <p
-        className={`winner-in display text-5xl tracking-[0.15em] ${
+        className={`winner-in display text-3xl leading-tight tracking-[0.1em] sm:text-5xl sm:tracking-[0.15em] ${
           mode === 'duel' || isNewPersonalBest ? 'text-gold' : 'text-muted'
         }`}
       >
@@ -171,7 +172,7 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
       </p>
 
       {mode === 'duel' ? (
-        <div className="flex items-end gap-16">
+        <div className="flex w-full max-w-3xl items-end justify-center gap-3 sm:gap-16">
           {[shownP1, shownP2].map((s, i) => {
             const won = i === winnerIndex && !tie
             return (
@@ -186,7 +187,9 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
                 </span>
                 <span
                   className={`display tnum leading-none ${
-                    won ? 'trophy-glow text-[13rem] text-gold' : 'text-[9rem] text-ink/70'
+                    won
+                      ? 'trophy-glow text-[clamp(7rem,32vw,13rem)] text-gold'
+                      : 'text-[clamp(5.5rem,25vw,9rem)] text-ink/70'
                   }`}
                 >
                   {s}
@@ -199,12 +202,12 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
           })}
         </div>
       ) : (
-        <span className="display tnum trophy-glow text-[16rem] leading-none text-gold">
+        <span className="display tnum trophy-glow text-[clamp(8rem,48vw,16rem)] leading-none text-gold">
           {shown}
         </span>
       )}
 
-      <div className="rise-in flex gap-10 font-mono text-sm text-muted">
+      <div className="rise-in flex flex-col gap-1 font-mono text-xs text-muted sm:flex-row sm:gap-10 sm:text-sm">
         <span className="tnum">{rps.toFixed(2)} reps/sec</span>
         {mode === 'solo' && (
           <span className="tnum">
@@ -220,14 +223,14 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
       </div>
 
       {current && (
-        <div className="rise-in relative flex flex-col items-center gap-2 overflow-hidden border border-gold/40 bg-surface/90 px-8 py-5">
+        <div className="rise-in relative flex w-full max-w-lg flex-col items-center gap-2 overflow-hidden border border-gold/40 bg-surface/90 px-4 py-4 sm:px-8 sm:py-5">
           <div className="pointer-events-none absolute inset-0 opacity-20">
             <div className="banner-sweep h-full w-1/3 bg-gradient-to-r from-transparent via-gold to-transparent" />
           </div>
-          <p className="display text-2xl tracking-[0.2em] text-gold">
+          <p className="display text-lg leading-tight tracking-[0.12em] text-gold sm:text-2xl sm:tracking-[0.2em]">
             {current.reason === 'duel'
-              ? `PLAYER ${current.playerIndex + 1}${current.won ? ' — WINNER' : ''} — ENTER YOUR NAME`
-              : 'TOP 10 — ENTER YOUR NAME'}
+              ? `PLAYER ${current.playerIndex + 1}${current.won ? ', WINNER' : ''}: ENTER A NICKNAME`
+              : 'TOP 10: ENTER A NICKNAME'}
           </p>
           <p className="tnum font-mono text-xs text-muted">
             score {current.score}
@@ -244,17 +247,17 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
               if (e.key === 'Enter') void save()
             }}
             maxLength={NAME_MAX_LENGTH}
-            placeholder="Your name"
+            placeholder="Nickname"
             autoComplete="off"
             spellCheck={false}
-            className="display w-[22rem] border-b-2 border-gold bg-transparent text-center text-4xl tracking-[0.06em] text-ink outline-none placeholder:text-muted/30"
+            className="display w-full max-w-[22rem] border-b-2 border-gold bg-transparent text-center text-3xl tracking-[0.04em] text-ink outline-none placeholder:text-muted/30 sm:text-4xl sm:tracking-[0.06em]"
           />
-          <p className="text-[11px] uppercase tracking-[0.2em] text-muted">
-            first name · last name optional · shown publicly
+          <p className="max-w-sm text-[10px] uppercase leading-relaxed tracking-[0.12em] text-muted sm:text-[11px] sm:tracking-[0.2em]">
+            Shown publicly. Do not use your full name or contact information.
           </p>
           {rejected && (
             <p className="text-sm text-danger">
-              Letters, spaces, hyphens and apostrophes only — {NAME_MIN_LENGTH} to{' '}
+              Letters, spaces, hyphens and apostrophes only. Use {NAME_MIN_LENGTH} to{' '}
               {NAME_MAX_LENGTH} characters.
             </p>
           )}
@@ -283,19 +286,20 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
         )
       )}
 
-      <div className="mt-1 flex gap-4">
+      <div className="mt-1 flex w-full max-w-lg flex-col gap-3 sm:flex-row sm:gap-4">
         <button
           onClick={onAgain}
-          className="display border-2 border-gold bg-gold px-16 py-5 text-4xl tracking-[0.1em] text-bg hover:bg-gold/85"
+          className="display min-h-14 flex-1 border-2 border-gold bg-gold px-8 py-4 text-3xl tracking-[0.08em] text-bg hover:bg-gold/85 sm:px-16 sm:py-5 sm:text-4xl sm:tracking-[0.1em]"
         >
           GO AGAIN
         </button>
         <button
           onClick={onHome}
-          className="display border-2 border-white/25 px-8 py-5 text-2xl tracking-[0.1em] text-muted hover:bg-white/5"
+          className="display min-h-14 border-2 border-white/25 px-8 py-4 text-xl tracking-[0.1em] text-muted hover:bg-white/5 sm:py-5 sm:text-2xl"
         >
           HOME
         </button>
+      </div>
       </div>
     </div>
   )

@@ -1,7 +1,7 @@
 /**
  * React binding for PoseTracker.
  *
- * Deliberately does NOT setState per frame — the frame handler writes to refs
+ * Deliberately does NOT setState per frame - the frame handler writes to refs
  * and draws to the canvas directly, and React state is published on a throttle
  * (or immediately when a rep lands, so the counter never feels laggy).
  */
@@ -56,8 +56,8 @@ const EMPTY_SNAPSHOT: TrackerSnapshot = {
   inferenceMs: 0,
   poseCount: 0,
   droppedFrames: 0,
-  displayRes: '—',
-  inferenceRes: '—',
+  displayRes: '-',
+  inferenceRes: '-',
   players: [],
 }
 
@@ -74,7 +74,7 @@ export type Traces = Record<WristSide, TracePoint[]>
 
 /**
  * Per-frame callback for game logic. Fires at full frame rate and must NOT
- * setState — it exists so the game clock and phase gates can run without
+ * setState - it exists so the game clock and phase gates can run without
  * re-rendering React 60 times a second.
  */
 export interface GameFrame {

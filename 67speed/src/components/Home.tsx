@@ -1,6 +1,6 @@
 /**
  * Home screen. Deliberately plain: play buttons, leaderboard, footer.
- * No camera runs here — getUserMedia is only called once a mode is chosen.
+ * No camera runs here - getUserMedia is only called once a mode is chosen.
  */
 import { Leaderboard } from './Leaderboard'
 import type { GameMode } from '../lib/leaderboard'
@@ -8,7 +8,7 @@ import type { LegalTab } from './Legal'
 
 /**
  * Other NA Computer & AI Club projects, shown in the footer. Every URL here was
- * confirmed to respond before being added — do not add a link you have not
+ * confirmed to respond before being added - do not add a link you have not
  * loaded.
  */
 const CLUB_LINKS = [
@@ -39,8 +39,8 @@ export function Home({
     onClick?: () => void
   }> = [
     ...CLUB_LINKS,
-    { label: 'Terms & Disclaimer', onClick: () => onOpenLegal('terms') },
-    { label: 'Privacy & Data', onClick: () => onOpenLegal('privacy') },
+    { label: 'Terms of Use', onClick: () => onOpenLegal('terms') },
+    { label: 'Privacy Notice', onClick: () => onOpenLegal('privacy') },
   ]
 
   return (
@@ -53,27 +53,29 @@ export function Home({
       once it does not.
     */
     <div className="scroll-dark relative z-20 h-full overflow-y-auto">
-      <div className="flex min-h-full flex-col items-center justify-center gap-8 px-6 py-10">
-      <div className="flex flex-col items-center gap-5">
-        <img src="/na-club-logo-dark.png" alt="NA Computer & AI Club" className="h-28 w-28" />
-        {/* Just "67" — the logo directly above already carries the NA mark,
+      <div className="safe-bottom flex min-h-full flex-col items-center justify-center gap-6 px-4 pt-16 sm:gap-8 sm:px-6 sm:py-10">
+      <div className="flex min-w-0 flex-col items-center gap-3 sm:gap-5">
+        <img src="/na-club-logo-dark.png" alt="NA Computer & AI Club" className="h-20 w-20 sm:h-28 sm:w-28" />
+        {/* Just "67" - the logo directly above already carries the NA mark,
             so repeating it in the wordmark was redundant. Sized up because two
             characters at the old size read as small rather than bold. */}
-        <h1 className="display text-9xl leading-none tracking-[0.04em] text-gold">67 SPEED</h1>
+        <h1 className="display whitespace-nowrap text-[clamp(4.25rem,22vw,8rem)] leading-none tracking-[0.03em] text-gold">
+          67 SPEED
+        </h1>
       </div>
 
-      <div className="flex flex-wrap items-stretch justify-center gap-4">
+      <div className="flex w-full max-w-sm flex-col items-stretch justify-center gap-3 sm:max-w-2xl sm:flex-row sm:gap-4">
         <button
           onClick={() => onStart('solo')}
           disabled={starting}
-          className="display border-2 border-gold bg-gold px-14 py-6 text-4xl tracking-[0.1em] text-bg transition hover:bg-gold/85 disabled:opacity-50"
+          className="display min-h-16 w-full border-2 border-gold bg-gold px-8 py-4 text-3xl tracking-[0.1em] text-bg transition hover:bg-gold/85 disabled:opacity-50 sm:w-auto sm:px-14 sm:py-6 sm:text-4xl"
         >
           SOLO
         </button>
         <button
           onClick={() => onStart('duel')}
           disabled={starting}
-          className="display border-2 border-gold px-14 py-6 text-4xl tracking-[0.1em] text-gold transition hover:bg-gold/15 disabled:opacity-50"
+          className="display min-h-16 w-full border-2 border-gold px-8 py-4 text-3xl tracking-[0.1em] text-gold transition hover:bg-gold/15 disabled:opacity-50 sm:w-auto sm:px-14 sm:py-6 sm:text-4xl"
         >
           DUEL 1v1
         </button>
@@ -94,10 +96,10 @@ export function Home({
         pressable.
       */}
       <footer className="mt-2 flex w-full max-w-3xl flex-col items-center gap-3">
-        <nav className="flex flex-wrap items-center justify-center divide-x divide-white/10 border-y border-white/10">
+        <nav className="grid w-full grid-cols-2 border-y border-white/10 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-center sm:divide-x sm:divide-white/10">
           {FOOTER_LINKS.map((item) => {
             const className =
-              'group flex items-center gap-2 px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-muted transition hover:bg-white/5 hover:text-gold'
+              'group flex min-w-0 items-center justify-center gap-1.5 px-2 py-3 text-center text-[10px] uppercase tracking-[0.12em] text-muted transition hover:bg-white/5 hover:text-gold sm:px-5 sm:py-2.5 sm:text-xs sm:tracking-[0.2em]'
             return item.href ? (
               <a
                 key={item.label}
@@ -119,8 +121,8 @@ export function Home({
           })}
         </nav>
 
-        <p className="text-[11px] uppercase tracking-[0.2em] text-muted">
-          100% on-device — nothing leaves your computer
+        <p className="text-center text-[10px] uppercase tracking-[0.14em] text-muted sm:text-[11px] sm:tracking-[0.2em]">
+          100% on-device. Camera images stay on your computer.
         </p>
 
         <p className="max-w-xl text-center text-[10px] leading-relaxed text-muted/55">

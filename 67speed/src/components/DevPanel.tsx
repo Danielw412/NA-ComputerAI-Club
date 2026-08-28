@@ -1,5 +1,5 @@
 /**
- * Hidden dev panel — toggled with "D". Diagnostics first, dials second.
+ * Hidden dev panel - toggled with "D". Diagnostics first, dials second.
  *
  * In auto mode there is deliberately nothing to tune: the trace graph is there
  * so you can SEE what each wrist is doing and why a rep did or didn't land.
@@ -185,7 +185,7 @@ export function DevPanel({
   const p0 = snapshot.players[0]
 
   return (
-    <div className="scroll-dark absolute top-4 left-4 z-30 max-h-[92vh] w-[23rem] overflow-y-auto border border-gold/30 bg-surface/95 p-4 font-mono text-xs text-ink shadow-2xl backdrop-blur">
+    <div className="scroll-dark absolute top-14 left-2 z-30 max-h-[calc(100dvh-4rem)] w-[calc(100%-1rem)] overflow-y-auto border border-gold/30 bg-surface/95 p-3 font-mono text-xs text-ink shadow-2xl backdrop-blur sm:top-4 sm:left-4 sm:max-h-[92dvh] sm:w-[23rem] sm:p-4">
       <div className="mb-3 flex items-center justify-between border-b border-white/10 pb-2">
         <span className="tracking-[0.2em] text-gold">DEV PANEL</span>
         <span className="text-muted">press D to hide</span>
@@ -209,7 +209,7 @@ export function DevPanel({
           {p0?.scaleSource === 'shoulders' ? (
             <span className="text-gold">shoulders (hips out of frame)</span>
           ) : (
-            (p0?.scaleSource ?? '—')
+            (p0?.scaleSource ?? '-')
           )}
         </span>
       </div>
@@ -233,7 +233,7 @@ export function DevPanel({
         </div>
         <p className="text-[11px] leading-relaxed text-muted">
           {config.mode === 'auto'
-            ? 'Each wrist calibrates to its own range of motion. Nothing to tune — watch the traces below.'
+            ? 'Each wrist calibrates to its own range of motion. Nothing to tune - watch the traces below.'
             : 'Fixed thresholds. Only useful for debugging; a single number never fits every player.'}
         </p>
       </div>
@@ -257,7 +257,7 @@ export function DevPanel({
             onChange={(v) => setConfig({ downThreshold: v })}
           />
           {config.downThreshold >= config.upThreshold && (
-            <p className="text-danger">down ≥ up — the trigger cannot latch.</p>
+            <p className="text-danger">down ≥ up - the trigger cannot latch.</p>
           )}
         </div>
       )}
@@ -277,15 +277,15 @@ export function DevPanel({
               <TraceGraph side={side} getTraces={getTraces} />
               <div className="mt-1 flex justify-between text-[11px] text-muted">
                 <span className="tnum">
-                  h {w?.usable ? w.h.toFixed(2) : '—'} · {w?.state ?? '—'}
+                  h {w?.usable ? w.h.toFixed(2) : '-'} · {w?.state ?? '-'}
                 </span>
                 <span className="tnum">
-                  range {w ? (w.max - w.min).toFixed(2) : '—'} · vis{' '}
-                  {w?.visibility ? w.visibility.toFixed(2) : '—'}
+                  range {w ? (w.max - w.min).toFixed(2) : '-'} · vis{' '}
+                  {w?.visibility ? w.visibility.toFixed(2) : '-'}
                 </span>
               </div>
               {w && !w.usable && (
-                <p className="text-danger">not visible — this wrist is being skipped</p>
+                <p className="text-danger">not visible - this wrist is being skipped</p>
               )}
               {w && w.usable && !w.armed && config.mode === 'auto' && (
                 <p className="text-muted">
@@ -295,7 +295,7 @@ export function DevPanel({
             </div>
           )
         })}
-        {!p0?.valid && <p className="text-danger">no valid pose — shoulders must be visible</p>}
+        {!p0?.valid && <p className="text-danger">no valid pose - shoulders must be visible</p>}
       </div>
 
       <div className="mb-3 space-y-3 border-t border-white/10 pt-3">

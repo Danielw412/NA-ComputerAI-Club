@@ -9,7 +9,7 @@ Production URL: `https://67.naclubs.net`
 The whole game is one question: **how do you count arm pumps from a webcam,
 fast enough and reliably enough that a stranger trusts the number?**
 
-<!-- Screenshots welcome here — drop PNGs in a docs/ folder and link them. -->
+<!-- Screenshots welcome here - drop PNGs in a docs/ folder and link them. -->
 
 ### 1. Pose, not hands
 
@@ -21,7 +21,7 @@ Whole-body pose estimation survives blur far better, because it infers joint
 positions from the shape of the entire body rather than from fine finger
 detail. So the game runs MediaPipe's **PoseLandmarker** (the `lite` model,
 float16) and only ever looks at six of its 33 landmarks: two shoulders, two
-elbows, two wrists — plus the hips as a size reference.
+elbows, two wrists - plus the hips as a size reference.
 
 ```mermaid
 flowchart LR
@@ -53,7 +53,7 @@ torso-length above it. Two useful properties fall out of this for free:
 
 - **Scale invariance.** Divide by torso length and it no longer matters whether
   you are one metre from the camera or three.
-- **Shake invariance — the anti-cheat.** `h` is a *difference* between two body
+- **Shake invariance - the anti-cheat.** `h` is a *difference* between two body
   parts. Shake the laptop and the shoulder and the wrist move together, so the
   difference barely changes. Waving the camera around scores you nothing. Only
   moving your arm *relative to your own body* counts.
@@ -68,7 +68,7 @@ thresholds instead of one, with a gap between them.
 stateDiagram-v2
   [*] --> Down
   Down --> Up: h rises past the UPPER threshold
-  Up --> Down: h falls past the LOWER threshold — count +1
+  Up --> Down: h falls past the LOWER threshold - count +1
 ```
 
 The rep is counted on the way *down*, so you have to complete the motion. Each
@@ -85,14 +85,14 @@ would refuse to register at all. There were two causes:
 - If your shoulders are even slightly tilted, the shoulder *midpoint* sits above
   one shoulder and below the other, pushing the two arms in opposite directions.
 - Someone pumping at chest height peaks around `h = 0.2` and never reaches a
-  threshold set at `0.35` — so they score zero while feeling like they are
+  threshold set at `0.35` - so they score zero while feeling like they are
   working hard.
 
 So the thresholds became **relative to each wrist's own recent range of motion**,
 measured over a 700 ms sliding window, with the trigger points at 65% and 35% of
 that range. Pump small and the window shrinks to match; pump overhead and it
-grows. A minimum range requirement keeps someone standing still — or just
-gesturing while they talk — from scoring.
+grows. A minimum range requirement keeps someone standing still - or just
+gesturing while they talk - from scoring.
 
 The difference, measured against simulated players with known rep counts:
 
@@ -108,8 +108,8 @@ The difference, measured against simulated players with known rep counts:
 ### 5. Tuned by simulation, not by feel
 
 Those window and threshold numbers were not guessed. `npm run tune` generates
-synthetic arm-pump signals with **known** rep counts — fast, slow, tiny, tiring,
-noisy, dropping out, plus several "player is standing still" cases — and sweeps
+synthetic arm-pump signals with **known** rep counts - fast, slow, tiny, tiring,
+noisy, dropping out, plus several "player is standing still" cases - and sweeps
 the parameters to find the settings with the lowest total error.
 
 Worth noting: the sweep's best-scoring configuration was **not** the one shipped.
@@ -124,14 +124,14 @@ how you get something that works at a fair.
 Inference is synchronous, so the loop never lets work pile up: it refuses to run
 twice on the same camera frame, and if a frame takes longer than 40 ms it starts
 processing every other one instead of falling behind. Rendering never waits on
-React either — the per-frame code writes to refs and draws straight to a canvas,
+React either - the per-frame code writes to refs and draws straight to a canvas,
 and React state is published on a throttle.
 
 ### 7. Your camera never leaves your device
 
 There is no upload, no recording, and no transmission of video anywhere. The
-code contains no frame-export calls at all — no `toDataURL`, no `MediaRecorder`,
-no `captureStream` — so frames physically cannot leave the browser. The only
+code contains no frame-export calls at all - no `toDataURL`, no `MediaRecorder`,
+no `captureStream` - so frames physically cannot leave the browser. The only
 network requests the app makes are the three leaderboard queries.
 
 The leaderboard stores four things, and only if you choose to submit: the name
@@ -140,7 +140,7 @@ you type, your score and mode, whether you won a duel, and the timestamp.
 ### 8. The leaderboard is append-only
 
 The `scores` table can be read and inserted into by the public, and **never
-updated or deleted** — there is deliberately no policy granting either. Showing
+updated or deleted** - there is deliberately no policy granting either. Showing
 one row per player is done with a database *view* rather than by letting the
 browser overwrite rows, because an update permission that lets you edit your own
 score also lets you edit everybody else's.
@@ -155,7 +155,7 @@ duel win.
 | --- | --- |
 | `src/lib/pose/tracker.ts` | Camera, MediaPipe setup, the inference loop |
 | `src/lib/pose/landmarks.ts` | Turns landmarks into the scale-invariant `h` |
-| `src/lib/pose/repCounter.ts` | The self-calibrating trigger — the actual game |
+| `src/lib/pose/repCounter.ts` | The self-calibrating trigger - the actual game |
 | `src/lib/pose/overlay.ts` | The gold skeleton drawn over the video |
 | `src/game/useGame.ts` | Countdown, 20-second clock, pose gating |
 | `src/lib/leaderboard.ts` | Supabase reads/writes with an offline fallback |
@@ -297,8 +297,8 @@ The database rejects malformed names/modes/scores and blocks browser updates/del
 
 ## Files relevant to deployment
 
-- `.node-version` — pins the Pages Node version.
-- `.env.example` — documents required production environment variables.
-- `supabase/schema.sql` — creates the leaderboard table, index, grants, constraints, and RLS policies.
-- `public/models/pose_landmarker_lite.task` — vendored pose model.
-- `public/mediapipe/wasm/` — vendored MediaPipe runtime.
+- `.node-version` - pins the Pages Node version.
+- `.env.example` - documents required production environment variables.
+- `supabase/schema.sql` - creates the leaderboard table, index, grants, constraints, and RLS policies.
+- `public/models/pose_landmarker_lite.task` - vendored pose model.
+- `public/mediapipe/wasm/` - vendored MediaPipe runtime.

@@ -37,8 +37,8 @@ export type WristSide = 'left' | 'right'
  * the original spec described.
  *
  * Why the default changed: with 'mid', a player whose shoulders are even
- * slightly tilted gets equal-and-opposite offsets on the two arms — the
- * midpoint sits above one shoulder and below the other — so one arm clears a
+ * slightly tilted gets equal-and-opposite offsets on the two arms - the
+ * midpoint sits above one shoulder and below the other - so one arm clears a
  * fixed threshold and the other never does. That was the real cause of
  * "my right hand is up and it won't count". 'sameSide' cancels tilt and is
  * equally camera-shake-invariant, since a shoulder and its wrist both move
@@ -95,7 +95,7 @@ export interface GeometryOptions {
  * Live estimate of torsoLength / shoulderWidth for the current player.
  *
  * Learned while the hips ARE visible, then reused to synthesise a scale when
- * they are not — which is what lets a player stand close enough that only their
+ * they are not - which is what lets a player stand close enough that only their
  * upper body is in frame. Nothing here is a hardcoded anthropometric constant;
  * it is measured off the player in front of the camera. In adaptive threshold
  * mode the absolute scale barely matters anyway, since each wrist is compared
@@ -163,7 +163,7 @@ export function computePoseMetrics(
     }
   }
   if (scaleSource === 'none' && shoulderWidth > 0.02) {
-    // Hips out of frame (player standing close) — synthesise a torso length.
+    // Hips out of frame (player standing close) - synthesise a torso length.
     scale = shoulderWidth * (scaleRatio?.ratio ?? 1)
     scaleSource = 'shoulders'
   }

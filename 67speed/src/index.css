@@ -34,17 +34,45 @@ body,
   height: 100%;
 }
 
+#root {
+  height: 100dvh;
+}
+
 body {
   margin: 0;
   background: var(--color-bg);
   color: var(--color-ink);
   font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   overflow: hidden;
+  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
 }
 
-button {
+button,
+input {
   font-family: inherit;
+}
+
+button {
+  touch-action: manipulation;
+}
+
+.app-shell {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.sound-toggle {
+  top: max(0.75rem, env(safe-area-inset-top));
+  right: max(0.75rem, env(safe-area-inset-right));
+}
+
+.sound-toggle-game {
+  right: max(5rem, calc(env(safe-area-inset-right) + 5rem));
+}
+
+.safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
 .display {
@@ -278,7 +306,7 @@ button {
 
 /*
  * Dark scrollbar for scroll areas on the black UI. The platform default is a
- * light bar that sits on top of the content — on the leaderboard it covered the
+ * light bar that sits on top of the content - on the leaderboard it covered the
  * "When" column. `scrollbar-gutter: stable` reserves the space instead of
  * overlaying it, so nothing is hidden and the layout does not shift when the
  * bar appears.
@@ -310,6 +338,28 @@ button {
 .scroll-dark:hover::-webkit-scrollbar-thumb {
   background-color: rgba(250, 170, 19, 0.55);
   background-clip: content-box;
+}
+
+@media (max-width: 639px) {
+  .scroll-dark {
+    scrollbar-gutter: auto;
+  }
+
+  .scroll-dark::-webkit-scrollbar {
+    width: 6px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .mobile-landscape-compact {
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .mobile-landscape-hide {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

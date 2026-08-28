@@ -3,18 +3,18 @@
  *
  * One independent Schmitt trigger per wrist, driven by `h` = how far the wrist
  * is above its shoulder, measured in torso lengths. Because the shoulder and
- * the wrist both move when the CAMERA shakes, `h` cancels camera motion out —
+ * the wrist both move when the CAMERA shakes, `h` cancels camera motion out -
  * shaking the laptop does not score. Keep that property.
  *
  * TWO THRESHOLD MODES:
  *
- *   'auto' (default) — each wrist calibrates against its OWN recent range of
+ *   'auto' (default) - each wrist calibrates against its OWN recent range of
  *   motion. Thresholds are placed at fractions of the range between that
  *   wrist's rolling minimum and maximum, so a player who pumps at chest height
  *   and a player who pumps overhead both score, and a tilted stance can't stop
  *   one arm from registering. There is nothing to tune.
  *
- *   'manual' — the original fixed UP/DOWN constants. Kept as an escape hatch.
+ *   'manual' - the original fixed UP/DOWN constants. Kept as an escape hatch.
  *
  * Both wrists count separately, so alternating arms scores faster in wall-clock
  * time than pumping both together. That is intended.
@@ -86,7 +86,7 @@ export interface WristDebug {
  * when they are working hardest. A window simply forgets anything older than
  * `windowMs`, so thresholds track the player's CURRENT range.
  *
- * Window length is tuned by simulation, not by feel — see scripts/tuneAuto.ts.
+ * Window length is tuned by simulation, not by feel - see scripts/tuneAuto.ts.
  */
 class RangeWindow {
   private ts: number[] = []
@@ -159,7 +159,7 @@ function newWristRuntime(): WristRuntime {
 export class PlayerRepCounter {
   count = 0
   timeline: RepEvent[] = []
-  /** Frames dropped for bad landmarks — high means bad framing. */
+  /** Frames dropped for bad landmarks - high means bad framing. */
   skippedFrames = 0
 
   private wrists: Record<WristSide, WristRuntime> = {
@@ -231,7 +231,7 @@ export class PlayerRepCounter {
       w.up = w.window.min + range * cfg.autoUpFrac
       w.down = w.window.min + range * cfg.autoDownFrac
       if (!w.armed) {
-        // Not moving enough to be a pump — don't let sensor noise score.
+        // Not moving enough to be a pump - don't let sensor noise score.
         w.state = 'down'
         return 0
       }

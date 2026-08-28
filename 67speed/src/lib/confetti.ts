@@ -2,7 +2,7 @@
  * Confetti, hand-rolled on a 2D canvas.
  *
  * Deliberately not a dependency: this is ~90 lines, it keeps the bundle small,
- * and — more importantly — the whole app has to work offline from vendored
+ * and - more importantly - the whole app has to work offline from vendored
  * assets, so every package we don't add is one less thing to vendor.
  *
  * Colours are the club palette. Nothing here is random enough to look noisy:
@@ -96,7 +96,7 @@ export class ConfettiCanvas {
     this.start()
   }
 
-  /** Two side cannons, angled inward — reads as a "winner" moment. */
+  /** Two side cannons, angled inward - reads as a "winner" moment. */
   cannons(): void {
     this.burst({ x: 0.02, y: 0.75, angle: -Math.PI / 3.2, spread: Math.PI / 4, count: 70, power: 20 })
     this.burst({

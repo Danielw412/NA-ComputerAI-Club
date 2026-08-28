@@ -26,8 +26,10 @@ interface Props {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="mb-5">
-      <h3 className="display mb-1 text-lg tracking-[0.15em] text-gold">{title}</h3>
+    <section className="mb-6">
+      <h3 className="display mb-1.5 text-base leading-tight tracking-[0.12em] text-gold sm:text-lg sm:tracking-[0.15em]">
+        {title}
+      </h3>
       <div className="space-y-2 text-sm leading-relaxed text-ink/85">{children}</div>
     </section>
   )
@@ -38,7 +40,7 @@ export function Legal({ tab, onSelect, onClose }: Props) {
     if (!tab) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        e.stopPropagation()
+        e.stopImmediatePropagation()
         onClose()
       }
     }
@@ -51,25 +53,30 @@ export function Legal({ tab, onSelect, onClose }: Props) {
 
   return (
     <div
-      className="absolute inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+      className="absolute inset-0 z-50 flex items-center justify-center bg-black/85 p-0 sm:p-4"
       onClick={onClose}
     >
       <div
-        className="flex max-h-[88vh] w-full max-w-3xl flex-col border border-gold/40 bg-surface"
+        role="dialog"
+        aria-modal="true"
+        aria-label={tab === 'terms' ? 'Terms of Use' : 'Privacy Notice'}
+        className="flex h-full max-h-none w-full max-w-3xl flex-col border-x border-gold/40 bg-surface sm:h-auto sm:max-h-[88dvh] sm:border"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
-          <div className="flex gap-1">
+        <div className="flex items-start gap-2 border-b border-white/10 px-3 py-3 sm:items-center sm:px-5">
+          <div role="tablist" className="grid min-w-0 flex-1 grid-cols-2 gap-1">
             {(
               [
-                ['terms', 'TERMS & DISCLAIMER'],
-                ['privacy', 'PRIVACY & DATA'],
+                ['terms', 'TERMS OF USE'],
+                ['privacy', 'PRIVACY NOTICE'],
               ] as const
             ).map(([key, label]) => (
               <button
                 key={key}
+                role="tab"
+                aria-selected={tab === key}
                 onClick={() => onSelect(key)}
-                className={`display px-3 py-1 text-base tracking-[0.12em] transition ${
+                className={`display min-w-0 px-1 py-2 text-sm leading-tight tracking-[0.08em] transition sm:px-3 sm:py-1 sm:text-base sm:tracking-[0.12em] ${
                   tab === key
                     ? 'border-b-2 border-gold text-gold'
                     : 'border-b-2 border-transparent text-muted hover:text-ink'
@@ -81,128 +88,175 @@ export function Legal({ tab, onSelect, onClose }: Props) {
           </div>
           <button
             onClick={onClose}
-            className="border border-white/20 px-3 py-1 text-xs uppercase tracking-[0.2em] text-muted hover:bg-white/5"
+            className="shrink-0 border border-white/20 px-2.5 py-2 text-[10px] uppercase tracking-[0.14em] text-muted hover:bg-white/5 sm:px-3 sm:py-1 sm:text-xs sm:tracking-[0.2em]"
           >
             close
           </button>
         </div>
 
-        <div className="scroll-dark overflow-y-auto px-6 py-5">
+        <div className="scroll-dark safe-bottom overflow-y-auto px-4 py-5 sm:px-6">
           {tab === 'terms' ? (
             <>
-              <Section title="NOT AFFILIATED WITH NORTH ALLEGHENY">
+              <Section title="ABOUT THESE TERMS">
                 <p>
-                  NA 67 SPEED is a student project made by members of the NA Computer &amp; AI
-                  Club. It is <strong className="text-ink">not</strong> officially supported,
-                  operated, endorsed, sponsored, reviewed, or backed by the North Allegheny
-                  School District, any North Allegheny school, or their staff.
+                  These Terms of Use apply when you play 67 SPEED or submit a leaderboard entry.
+                  By using the site, you agree to follow them. If you do not agree, do not use the
+                  site.
                 </p>
                 <p>
-                  Opinions and content here are the club members&apos; own. &quot;NA&quot; refers
-                  to the club&apos;s name only.
+                  67 SPEED is an independent student project by the NA Computer &amp; AI Club. It
+                  is not operated, sponsored, endorsed, or reviewed by the North Allegheny School
+                  District, any North Allegheny school, or their staff.
                 </p>
               </Section>
 
-              <Section title="USER-SUBMITTED NAMES">
+              <Section title="PLAY SAFELY">
                 <p>
-                  Leaderboard names are typed in by players. Entries are not reviewed before they
-                  appear, so we cannot guarantee that every name is appropriate.
+                  The game asks you to move your arms quickly. Use it only when you have enough
+                  clear space. Keep away from people, furniture, cables, and other hazards. Stop
+                  immediately if you feel pain, dizziness, or discomfort.
                 </p>
                 <p>
-                  We remove anything inappropriate as soon as we see it, and we may remove or edit
-                  any entry, for any reason, without notice.{' '}
+                  You are responsible for deciding whether you can safely participate and for
+                  supervising younger players. Camera access is optional, but the game cannot run
+                  without it.
+                </p>
+              </Section>
+
+              <Section title="LEADERBOARD RULES">
+                <p>
+                  Leaderboard submissions are public. Use a nickname that does not identify you.
+                  Never enter a full name, email address, phone number, social media handle, school
+                  schedule, or other contact information. If you are under 13, do not submit a
+                  leaderboard entry.
+                </p>
+                <p>
+                  Do not submit offensive, threatening, impersonating, misleading, automated, or
+                  fraudulent entries. We may hide, edit, or remove any entry and may restrict
+                  access when needed to protect the game or its players. Entries are not reviewed
+                  before publication.{' '}
                   <a
                     href={CONTACT_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gold underline underline-offset-4"
                   >
-                    Report an entry
+                    Report a leaderboard entry
                   </a>
                   .
                 </p>
               </Section>
 
-              <Section title="USE AT YOUR OWN RISK">
+              <Section title="AVAILABILITY AND DISCLAIMER">
                 <p>
-                  This game asks you to move your arms quickly. Give yourself clear space, and
-                  stop if you feel any pain or discomfort. Play sensibly and look after the people
-                  around you.
+                  This site is provided for fun and education. It may be changed, interrupted, or
+                  removed at any time. Scores and pose estimates can be inaccurate, and we do not
+                  promise that the site will always be available, secure, or error-free.
                 </p>
                 <p>
-                  The game is provided &quot;as is&quot;, without warranty of any kind. The club
-                  and its members are not liable for any injury, loss, or damage arising from
-                  using it.
+                  To the fullest extent permitted by law, the site is provided &quot;as is&quot; and
+                  without warranties. The club and its members are not responsible for indirect,
+                  incidental, or consequential loss arising from use of the site. Nothing in these
+                  terms excludes rights or liability that cannot legally be excluded.
+                </p>
+              </Section>
+
+              <Section title="CHANGES AND CONTACT">
+                <p>
+                  We may update these terms when the game or its data practices change. The date
+                  below shows the latest revision. Continued use after an update means the revised
+                  terms apply.
                 </p>
               </Section>
             </>
           ) : (
             <>
-              <Section title="YOUR CAMERA NEVER LEAVES YOUR DEVICE">
+              <Section title="PRIVACY AT A GLANCE">
                 <p>
-                  Pose detection runs entirely in your browser. Camera frames are{' '}
-                  <strong className="text-ink">never uploaded, recorded, or transmitted</strong>{' '}
-                  anywhere; not to us, not to anyone. No video or images are saved, not even on
-                  your own device.
-                </p>
-                <p>
-                  The camera only turns on once you pick a mode, and it switches off when you
-                  return to the home screen.
+                  Camera images and pose detection stay on your device. We do not receive or save
+                  your video, photos, pose landmarks, or movement data. The only information you
+                  can choose to send to us is a leaderboard entry.
                 </p>
               </Section>
 
-              <Section title="WHAT WE STORE — ONLY IF YOU SUBMIT A SCORE">
+              <Section title="CAMERA AND POSE PROCESSING">
                 <p>
-                  Nothing is sent anywhere unless you finish a run and choose to put yourself on
-                  the leaderboard. If you do, we store exactly four things:
+                  After you choose a game mode and grant browser permission, MediaPipe processes
+                  camera frames in your browser to estimate body landmarks and count arm pumps.
+                  The app does not upload, record, export, or store camera frames. Camera access
+                  stops when you return to the home screen or close the site.
+                </p>
+              </Section>
+
+              <Section title="PUBLIC LEADERBOARD DATA">
+                <p>
+                  If you choose to submit an entry, we send these fields to our Supabase
+                  leaderboard:
                 </p>
                 <ul className="ml-5 list-disc space-y-1">
-                  <li>the name you typed</li>
-                  <li>your score, and which mode you played</li>
-                  <li>whether you won, if it was a duel</li>
-                  <li>the date and time you submitted</li>
+                  <li>the nickname you entered</li>
+                  <li>your score and game mode</li>
+                  <li>whether the entry was a duel win</li>
+                  <li>the submission date and time</li>
                 </ul>
                 <p>
                   <strong className="text-ink">
-                    The name you enter is shown publicly on the leaderboard.
+                    Your nickname, score, mode, and submission time can appear publicly.
                   </strong>{' '}
-                  Use a first name or a nickname if you would rather not show your full name. You
-                  can always press &quot;skip&quot; instead of entering one.
+                  Use a nickname that does not identify you. Do not enter a full name or any
+                  contact information. You can always choose &quot;skip&quot; and submit nothing.
                 </p>
                 <p>
-                  Leaderboard entries are held in a Supabase database. You can ask us to delete
-                  yours at any time —{' '}
+                  Leaderboard entries remain until we remove them. To request removal, open a
+                  GitHub issue with the nickname, score, mode, and approximate submission time.
+                  Do not include any additional personal information.{' '}
                   <a
                     href={CONTACT_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gold underline underline-offset-4"
                   >
-                    get in touch
+                    Request removal
                   </a>
                   .
                 </p>
               </Section>
 
-              <Section title="SAVED IN THIS BROWSER ONLY">
+              <Section title="SAVED ONLY IN YOUR BROWSER">
                 <p>
-                  These stay on the computer you are playing on and are never sent to us: your
-                  personal best, your sound on/off choice, camera tuning settings, and a local
-                  copy of the leaderboard so it still works offline. Clearing this site&apos;s
-                  data removes all of them.
+                  The app stores your personal best, sound preference, camera tuning settings,
+                  tracker settings, and a local backup of scores submitted from that browser.
+                  This information stays in browser storage. Clearing this site&apos;s data removes
+                  it from that device.
                 </p>
               </Section>
 
-              <Section title="WHAT WE DO NOT DO">
+              <Section title="HOSTING AND SERVICE PROVIDERS">
                 <p>
-                  No accounts, no sign-ups, no tracking cookies, no analytics, no advertising, and
-                  no selling or sharing of data. We do not ask for your email, and we have no way
-                  to identify you beyond the name you choose to type.
+                  Cloudflare Pages delivers the site, and Supabase hosts the leaderboard. Like
+                  other hosting providers, they may process technical request data such as IP
+                  addresses, browser details, timestamps, and security logs under their own terms
+                  and privacy practices.
                 </p>
-                <p className="text-muted">
-                  The site is hosted on Cloudflare Pages and the leaderboard runs on Supabase.
-                  Like any website, those providers keep their own standard server logs, which can
-                  include your IP address. We do not control, read, or use those logs.
+                <p>
+                  The club does not use accounts, analytics, advertising, tracking cookies, or
+                  data sales in this app. We do not ask for an email address or precise location.
+                </p>
+              </Section>
+
+              <Section title="CHILDREN'S PRIVACY">
+                <p>
+                  This site does not ask for your age. If you are under 13, play without submitting
+                  a leaderboard entry. All players should use a non-identifying nickname and avoid
+                  sharing personal information.
+                </p>
+              </Section>
+
+              <Section title="CHANGES AND QUESTIONS">
+                <p>
+                  We will update this notice if the app begins collecting or using information in
+                  a different way. Questions, privacy concerns, and removal requests can be sent
+                  through the club GitHub link below.
                 </p>
               </Section>
             </>
