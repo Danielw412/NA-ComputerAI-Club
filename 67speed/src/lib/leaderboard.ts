@@ -6,9 +6,12 @@
  * the network is down at the venue, everything falls back to localStorage and
  * the game keeps working. A leaderboard outage must never block play.
  */
-const URL_ENV = import.meta.env.VITE_SUPABASE_URL as string | undefined
-const PUBLISHABLE_KEY_ENV = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined
-const LEGACY_ANON_KEY_ENV = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
+// Optional chaining so this module can be imported by the node test runner,
+// where Vite has not injected import.meta.env. Harmless in the browser build.
+const ENV = import.meta.env as Record<string, string | undefined> | undefined
+const URL_ENV = ENV?.VITE_SUPABASE_URL
+const PUBLISHABLE_KEY_ENV = ENV?.VITE_SUPABASE_PUBLISHABLE_KEY
+const LEGACY_ANON_KEY_ENV = ENV?.VITE_SUPABASE_ANON_KEY
 // Supabase recommends publishable keys for new browser apps. Keep the legacy
 // anon-key fallback so an existing deployment can migrate without code changes.
 const KEY_ENV = PUBLISHABLE_KEY_ENV ?? LEGACY_ANON_KEY_ENV
@@ -16,7 +19,8 @@ const KEY_ENV = PUBLISHABLE_KEY_ENV ?? LEGACY_ANON_KEY_ENV
 const LOCAL_KEY = 'cai67:leaderboard'
 const BEST_KEY = 'cai67:personalBest'
 export const TOP_N = 10
-export const NAME_LENGTH = 3
+export const NAME_MIN_LENGTH = 2
+export const NAME_MAX_LENGTH = 24
 
 export type GameMode = 'solo' | 'duel'
 
@@ -92,28 +96,34 @@ export function setPersonalBest(score: number): void {
 // ------------------------------------------------------------- name filter
 
 /**
- * Arcade initials are three characters, which is short enough that a blocklist
- * of the obvious ones is genuinely effective. Anything not A-Z is rejected
- * outright, so there is no unicode-lookalike surface to police.
+ * Full names: first name, optional last name.
+ *
+ * Deliberately NO profanity blocklist. With three-letter initials a blocklist
+ * worked, but against free-text names substring matching is worse than useless
+ * — it rejects real people (Dickson, Hancock, Cummings) while anyone determined
+ * just adds a space. Alex moderates by deleting individual rows instead, which
+ * is the only approach that stays correct.
+ *
+ * What IS enforced is shape: letters plus spaces, hyphens and apostrophes, so
+ * the board can't be used to inject markup or dump a paragraph into a row. The
+ * same rule exists as a database constraint, so it holds even if the UI is
+ * bypassed.
  */
-const BLOCKED = new Set([
-  'ASS', 'FUK', 'FUC', 'FCK', 'FUX', 'SEX', 'CUM', 'TIT', 'FAG', 'FAG',
-  'NIG', 'NGR', 'KKK', 'JEW', 'HOE', 'SLT', 'DIK', 'DIC', 'COK', 'CCK',
-  'PUS', 'PSY', 'VAG', 'ANL', 'BUT', 'POO', 'PEE', 'WTF', 'STF', 'GAY',
-  'HTL', 'NZI', 'SS0', 'RAP', 'KYS', 'DIE', 'PRN', 'XXX', 'BJ0', 'HIV',
-])
+const NAME_PATTERN = /^[A-Za-z][A-Za-z' -]*[A-Za-z]$/
 
+/** Trim, collapse runs of whitespace, strip disallowed characters. */
 export function sanitizeName(raw: string): string {
   return raw
-    .toUpperCase()
-    .replace(/[^A-Z]/g, '')
-    .slice(0, NAME_LENGTH)
+    .replace(/[^A-Za-z' -]/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/^[ '-]+/, '')
+    .slice(0, NAME_MAX_LENGTH)
 }
 
 export function isNameAllowed(name: string): boolean {
-  const clean = sanitizeName(name)
-  if (clean.length !== NAME_LENGTH) return false
-  return !BLOCKED.has(clean)
+  const clean = sanitizeName(name).trim()
+  if (clean.length < NAME_MIN_LENGTH || clean.length > NAME_MAX_LENGTH) return false
+  return NAME_PATTERN.test(clean)
 }
 
 // ----------------------------------------------------------------- remote

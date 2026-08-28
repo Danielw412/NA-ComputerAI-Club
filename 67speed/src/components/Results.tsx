@@ -1,9 +1,9 @@
 /**
  * Results screen: the payoff. Score rolls up, confetti fires, the winner gets
- * the stage, and anyone who cracked the top 10 enters initials arcade-style.
+ * the stage, and anyone who cracked the top 10 enters their name.
  *
  * In duel mode BOTH players can qualify — the loser of a 90-vs-88 match still
- * beat the board, and pretending otherwise would be unfair. They enter initials
+ * beat the board, and pretending otherwise would be unfair. They enter names
  * one after the other.
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -11,7 +11,8 @@ import type { RunResult } from '../game/useGame'
 import { useCountUp } from '../hooks/useCountUp'
 import { audio } from '../lib/audio'
 import {
-  NAME_LENGTH,
+  NAME_MAX_LENGTH,
+  NAME_MIN_LENGTH,
   getTop,
   isNameAllowed,
   personalBest,
@@ -118,7 +119,7 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
 
   const save = async () => {
     if (!current) return
-    const clean = sanitizeName(name)
+    const clean = sanitizeName(name).trim()
     if (!isNameAllowed(clean)) {
       setRejected(true)
       return
@@ -217,8 +218,8 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
           </div>
           <p className="display text-2xl tracking-[0.2em] text-gold">
             {current.reason === 'duel'
-              ? `PLAYER ${current.playerIndex + 1}${current.won ? ' — WINNER' : ''} — ENTER INITIALS`
-              : 'TOP 10 — ENTER INITIALS'}
+              ? `PLAYER ${current.playerIndex + 1}${current.won ? ' — WINNER' : ''} — ENTER YOUR NAME`
+              : 'TOP 10 — ENTER YOUR NAME'}
           </p>
           <p className="tnum font-mono text-xs text-muted">
             score {current.score}
@@ -234,15 +235,25 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
             onKeyDown={(e) => {
               if (e.key === 'Enter') void save()
             }}
-            maxLength={NAME_LENGTH}
-            placeholder="AAA"
-            className="display w-40 border-b-2 border-gold bg-transparent text-center text-6xl tracking-[0.4em] text-ink outline-none placeholder:text-muted/30"
+            maxLength={NAME_MAX_LENGTH}
+            placeholder="Your name"
+            autoComplete="off"
+            spellCheck={false}
+            className="display w-[22rem] border-b-2 border-gold bg-transparent text-center text-4xl tracking-[0.06em] text-ink outline-none placeholder:text-muted/30"
           />
-          {rejected && <p className="text-sm text-danger">Pick three letters. Keep it clean.</p>}
+          <p className="text-[11px] uppercase tracking-[0.2em] text-muted">
+            first name · last name optional · shown publicly
+          </p>
+          {rejected && (
+            <p className="text-sm text-danger">
+              Letters, spaces, hyphens and apostrophes only — {NAME_MIN_LENGTH} to{' '}
+              {NAME_MAX_LENGTH} characters.
+            </p>
+          )}
           <div className="flex gap-3">
             <button
               onClick={() => void save()}
-              disabled={sanitizeName(name).length !== NAME_LENGTH}
+              disabled={!isNameAllowed(name)}
               className="display mt-1 border-2 border-gold px-8 py-2 text-xl tracking-[0.2em] text-gold hover:bg-gold/15 disabled:opacity-40"
             >
               SAVE

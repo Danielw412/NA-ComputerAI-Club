@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 import { DevPanel } from './components/DevPanel'
 import { GameScreen } from './components/GameScreen'
 import { Home } from './components/Home'
+import { Legal, type LegalTab } from './components/Legal'
 import { Results } from './components/Results'
 import { TrackerTest } from './components/TrackerTest'
 import { useGame } from './game/useGame'
@@ -24,6 +25,7 @@ export default function App() {
   const [view, setView] = useState<View>('game')
   const [muted, setMuted] = useState(audio.muted)
   const [leaderboardKey, setLeaderboardKey] = useState(0)
+  const [legalTab, setLegalTab] = useState<LegalTab | null>(null)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -36,6 +38,8 @@ export default function App() {
         if (document.fullscreenElement) void document.exitFullscreen()
         else void document.documentElement.requestFullscreen().catch(() => {})
       }
+      // Legal handles its own Escape (capture phase) and closes itself; don't
+      // also drop the player back to the home screen underneath it.
       if (e.key === 'Escape') {
         setView('game')
         goHome()
@@ -92,6 +96,7 @@ export default function App() {
         <Home
           onStart={(mode) => void startMode(mode)}
           onTrackerTest={() => setView('trackerTest')}
+          onOpenLegal={setLegalTab}
           starting={tracker.status === 'starting'}
           error={tracker.error}
           leaderboardKey={leaderboardKey}
@@ -106,6 +111,8 @@ export default function App() {
       ) : (
         <GameScreen state={state} onQuit={goHome} />
       )}
+
+      <Legal tab={legalTab} onSelect={setLegalTab} onClose={() => setLegalTab(null)} />
     </div>
   )
 }

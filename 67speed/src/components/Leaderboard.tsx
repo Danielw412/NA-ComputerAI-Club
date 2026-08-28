@@ -18,11 +18,17 @@ import {
 
 type Tab = 'fastest' | 'wins'
 
-/** Compact absolute date: "12 Mar". Never "3 days ago". */
-function formatDate(iso: string): string {
+/**
+ * Absolute date AND time of the entry, e.g. "27 Aug · 11:42 PM".
+ * Never relative ("3 days ago") — a booth screen gets read weeks later.
+ */
+function formatWhen(iso: string): { date: string; time: string } {
   const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+  if (Number.isNaN(d.getTime())) return { date: '', time: '' }
+  return {
+    date: d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }),
+    time: d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }),
+  }
 }
 
 export function Leaderboard({ refreshKey = 0 }: { refreshKey?: number }) {
@@ -49,7 +55,7 @@ export function Leaderboard({ refreshKey = 0 }: { refreshKey?: number }) {
   const rows = tab === 'fastest' ? fastest.length : wins.length
 
   return (
-    <div className="w-full max-w-lg">
+    <div className="w-full max-w-2xl">
       <div className="mb-2 flex items-end justify-between border-b border-gold/30 pb-1">
         <div className="flex gap-1">
           {(
@@ -84,20 +90,27 @@ export function Leaderboard({ refreshKey = 0 }: { refreshKey?: number }) {
         </p>
       ) : tab === 'fastest' ? (
         <ol className="font-mono text-sm">
-          {fastest.map((e, i) => (
-            <li
-              key={`${e.name}-${e.date}-${i}`}
-              className="flex items-baseline gap-3 border-b border-white/5 py-1"
-            >
-              <span className="tnum w-6 text-muted">{i + 1}</span>
-              <span className="display w-14 text-lg tracking-widest text-ink">{e.name}</span>
-              <span className="tnum flex-1 text-right text-lg text-gold">{e.score}</span>
-              <span className="w-12 text-right text-[10px] uppercase text-muted">{e.mode}</span>
-              <span className="tnum w-16 text-right text-[10px] text-muted/70">
-                {formatDate(e.date)}
-              </span>
-            </li>
-          ))}
+          {fastest.map((e, i) => {
+            const when = formatWhen(e.date)
+            return (
+              <li
+                key={`${e.name}-${e.date}-${i}`}
+                className="flex items-baseline gap-3 border-b border-white/5 py-1"
+              >
+                <span className="tnum w-6 shrink-0 text-muted">{i + 1}</span>
+                <span className="display flex-1 truncate text-lg tracking-wide text-ink">
+                  {e.name}
+                </span>
+                <span className="tnum w-16 shrink-0 text-right text-lg text-gold">{e.score}</span>
+                <span className="w-12 shrink-0 text-right text-[10px] uppercase text-muted">
+                  {e.mode}
+                </span>
+                <span className="tnum w-28 shrink-0 text-right text-[10px] text-muted/70">
+                  {when.date} · {when.time}
+                </span>
+              </li>
+            )
+          })}
         </ol>
       ) : (
         <ol className="font-mono text-sm">
@@ -106,12 +119,14 @@ export function Leaderboard({ refreshKey = 0 }: { refreshKey?: number }) {
               key={`${w.name}-${i}`}
               className="flex items-baseline gap-3 border-b border-white/5 py-1"
             >
-              <span className="tnum w-6 text-muted">{i + 1}</span>
-              <span className="display w-14 text-lg tracking-widest text-ink">{w.name}</span>
-              <span className="tnum flex-1 text-right text-lg text-gold">
+              <span className="tnum w-6 shrink-0 text-muted">{i + 1}</span>
+              <span className="display flex-1 truncate text-lg tracking-wide text-ink">
+                {w.name}
+              </span>
+              <span className="tnum w-24 shrink-0 text-right text-lg text-gold">
                 {w.wins} <span className="text-xs text-muted">{w.wins === 1 ? 'win' : 'wins'}</span>
               </span>
-              <span className="tnum w-20 text-right text-[10px] text-muted/70">
+              <span className="tnum w-20 shrink-0 text-right text-[10px] text-muted/70">
                 best {w.bestScore}
               </span>
             </li>

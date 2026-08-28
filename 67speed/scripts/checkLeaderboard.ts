@@ -81,11 +81,11 @@ try {
   const res = await fetch(`${URL_}/rest/v1/scores`, {
     method: 'POST',
     headers: { ...headers, Prefer: 'return=minimal' },
-    body: JSON.stringify({ name: 'toolong', score: 1, mode: 'solo' }),
+    body: JSON.stringify({ name: 'N4me W1th Digits', score: 1, mode: 'solo' }),
   })
   if (res.ok) {
     failures++
-    bad('a 7-character name was ACCEPTED — the check constraint is missing')
+    bad('a name containing digits was ACCEPTED — the check constraint is missing')
     info('Re-run the create table statement in CLAUDE.md section 7.')
   } else {
     ok(`malformed names rejected server-side (${res.status})`)
@@ -102,13 +102,17 @@ try {
   const res = await fetch(`${URL_}/rest/v1/scores`, {
     method: 'POST',
     headers: { ...headers, Prefer: 'return=minimal' },
-    body: JSON.stringify({ name: 'HAX', score: 400, mode: 'solo', won: true }),
+    // Score 1 on purpose: if the hole is open this row IS created, and a
+    // score of 1 sits harmlessly at the bottom of the board instead of
+    // squatting at #1 until someone clears it by hand.
+    body: JSON.stringify({ name: 'HAX', score: 1, mode: 'solo', won: true }),
   })
   if (res.ok) {
     failures++
     bad('a SOLO row with won=true was ACCEPTED — the MOST WINS board can be farmed')
-    info('Delete the stray HAX row, then re-run supabase/schema.sql to add')
-    info('the scores_won_only_duel constraint.')
+    info('This check LEAVES A ROW while the hole is open (it should have been')
+    info('rejected). Delete every HAX row, then re-run supabase/schema.sql to')
+    info('install the scores_won_only_duel constraint, then re-run this check.')
   } else {
     ok(`fake duel wins rejected server-side (${res.status})`)
   }

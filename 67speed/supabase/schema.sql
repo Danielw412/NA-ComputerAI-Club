@@ -11,7 +11,14 @@ create table if not exists public.scores (
   won boolean not null default false,
   created_at timestamptz not null default now(),
 
-  constraint scores_name_format check (name ~ '^[A-Z]{3}$'),
+  -- Full names: first name, last name optional. Letters plus spaces, hyphens
+  -- and apostrophes so real names (O'Brien, Anne-Marie) work, while markup and
+  -- pasted paragraphs do not. Inappropriate entries are moderated by deleting
+  -- individual rows -- a substring blocklist would reject real surnames.
+  constraint scores_name_format check (
+    char_length(name) between 2 and 24
+    and name ~ '^[A-Za-z][A-Za-z'' -]*[A-Za-z]$'
+  ),
   constraint scores_score_range check (score between 1 and 500),
   constraint scores_mode_check check (mode in ('solo', 'duel')),
   -- Only a duel can be won. Enforced as a CHECK, not just in the RLS policy,
@@ -35,6 +42,18 @@ begin
     alter table public.scores
       add constraint scores_won_only_duel check (won = false or mode = 'duel');
   end if;
+
+  -- Upgrade the name rule from the original 3-letter initials to full names.
+  -- Dropped and re-added unconditionally so re-running this file always leaves
+  -- the current rule in place. Existing 3-letter rows stay valid.
+  if exists (select 1 from pg_constraint where conname = 'scores_name_format') then
+    alter table public.scores drop constraint scores_name_format;
+  end if;
+  alter table public.scores
+    add constraint scores_name_format check (
+      char_length(name) between 2 and 24
+      and name ~ '^[A-Za-z][A-Za-z'' -]*[A-Za-z]$'
+    );
 end $$;
 
 alter table public.scores enable row level security;
@@ -62,7 +81,8 @@ create policy "scores_public_insert"
   for insert
   to anon
   with check (
-    name ~ '^[A-Z]{3}$'
+    char_length(name) between 2 and 24
+    and name ~ '^[A-Za-z][A-Za-z'' -]*[A-Za-z]$'
     and score between 1 and 500
     and mode in ('solo', 'duel')
     -- A solo run can never be a "win"; without this a crafted request could

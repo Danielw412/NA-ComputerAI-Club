@@ -4,6 +4,7 @@
  */
 import { Leaderboard } from './Leaderboard'
 import type { GameMode } from '../lib/leaderboard'
+import type { LegalTab } from './Legal'
 
 /**
  * Other NA Computer & AI Club projects. Every URL here was confirmed to
@@ -17,12 +18,20 @@ const CLUB_LINKS = [
 interface Props {
   onStart: (mode: GameMode) => void
   onTrackerTest: () => void
+  onOpenLegal: (tab: LegalTab) => void
   starting: boolean
   error: string | null
   leaderboardKey: number
 }
 
-export function Home({ onStart, onTrackerTest, starting, error, leaderboardKey }: Props) {
+export function Home({
+  onStart,
+  onTrackerTest,
+  onOpenLegal,
+  starting,
+  error,
+  leaderboardKey,
+}: Props) {
   return (
     <div className="relative z-20 flex h-full flex-col items-center justify-center gap-8 overflow-y-auto px-6 py-10">
       <div className="flex flex-col items-center gap-5">
@@ -77,9 +86,27 @@ export function Home({ onStart, onTrackerTest, starting, error, leaderboardKey }
         ))}
       </div>
 
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-3">
         <p className="text-xs uppercase tracking-[0.2em] text-muted">
           100% on-device — nothing leaves your computer
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <button
+            onClick={() => onOpenLegal('terms')}
+            className="border border-white/15 px-4 py-2 text-xs uppercase tracking-[0.2em] text-muted transition hover:border-gold/50 hover:text-gold"
+          >
+            Terms &amp; Disclaimer
+          </button>
+          <button
+            onClick={() => onOpenLegal('privacy')}
+            className="border border-white/15 px-4 py-2 text-xs uppercase tracking-[0.2em] text-muted transition hover:border-gold/50 hover:text-gold"
+          >
+            Privacy &amp; Data
+          </button>
+        </div>
+        <p className="max-w-md text-center text-[10px] leading-relaxed text-muted/60">
+          Not affiliated with, endorsed by, or operated by the North Allegheny School District.
+          A student project by the NA Computer &amp; AI Club.
         </p>
         <button
           onClick={onTrackerTest}
