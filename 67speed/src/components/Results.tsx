@@ -50,6 +50,7 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
   const [name, setName] = useState('')
   const [rejected, setRejected] = useState(false)
   const [savedCount, setSavedCount] = useState(0)
+  const [saveWarning, setSaveWarning] = useState<string | null>(null)
   const [confettiFire, setConfettiFire] = useState(0)
   const inputRef = useRef<HTMLInputElement | null>(null)
 
@@ -131,7 +132,14 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
       won: current.won,
       date: new Date().toISOString(),
     }
-    await submit(entry)
+    const result = await submit(entry)
+    // Tell the player the truth. Saying "saved to the board" when the row was
+    // rejected is how a broken leaderboard goes unnoticed for a whole event.
+    setSaveWarning(
+      result.saved === 'remote'
+        ? null
+        : 'Saved on this computer only — the online board could not be reached.',
+    )
     setSavedCount((n) => n + 1)
     setName('')
     setQueue((q) => q.slice(1))
@@ -268,7 +276,11 @@ export function Results({ result, onAgain, onHome, onSubmitted }: Props) {
         </div>
       )}
       {savedCount > 0 && queue.length === 0 && (
-        <p className="text-sm uppercase tracking-[0.3em] text-gold">saved to the board</p>
+        saveWarning ? (
+          <p className="max-w-md text-sm text-danger">{saveWarning}</p>
+        ) : (
+          <p className="text-sm uppercase tracking-[0.3em] text-gold">saved to the board</p>
+        )
       )}
 
       <div className="mt-1 flex gap-4">

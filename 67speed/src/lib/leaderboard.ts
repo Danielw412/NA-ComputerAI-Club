@@ -162,7 +162,12 @@ async function submitRemote(entry: ScoreEntry): Promise<void> {
       won: entry.won,
     }),
   })
-  if (!res.ok) throw new Error(`leaderboard submit failed: ${res.status}`)
+  if (!res.ok) {
+    // Include the body: PostgREST names the failing constraint, which is the
+    // difference between "we know why" and "it just didn't save".
+    const body = await res.text().catch(() => '')
+    throw new Error(`leaderboard submit failed (${res.status}): ${body.slice(0, 200)}`)
+  }
 }
 
 // ------------------------------------------------------------------ public
@@ -272,15 +277,31 @@ function aggregateWins(entries: ScoreEntry[]): WinEntry[] {
     .slice(0, TOP_N)
 }
 
-export async function submit(entry: ScoreEntry): Promise<{ online: boolean }> {
+export interface SubmitResult {
+  /** Where the score actually ended up. */
+  saved: 'remote' | 'local'
+  /** Present when the shared board rejected the row or could not be reached. */
+  error?: string
+}
+
+export async function submit(entry: ScoreEntry): Promise<SubmitResult> {
   // Always keep a local copy first, so an offline booth still shows a board and
   // a failed network call never loses the score.
   writeLocal([...readLocal(), entry])
+
+  // No backend configured is a setup state, not a failure.
+  if (!remoteConfigured) return { saved: 'local' }
+
   try {
     await submitRemote(entry)
-    return { online: remoteConfigured }
-  } catch {
-    return { online: false }
+    return { saved: 'remote' }
+  } catch (err) {
+    // Do NOT swallow this. A score that silently fails to save looks to the
+    // player exactly like one that saved, and the first anyone knows about it
+    // is a mysteriously empty leaderboard.
+    const message = (err as Error).message
+    console.error('[leaderboard] submit failed:', message)
+    return { saved: 'local', error: message }
   }
 }
 
