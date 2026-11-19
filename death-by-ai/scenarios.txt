@@ -1,0 +1,64 @@
+# Exit Code scenarios
+#
+# One scenario per line. A line starting with "## " starts a group in the
+# host's scenario picker. Other lines starting with "#" are comments, and blank
+# lines are ignored. Keep each scenario under 240 characters.
+#
+# When the host doesn't pick scenarios, every round draws one at random from
+# this whole file. Redeploy after editing (npm run deploy) to update the live game.
+
+## Computer club
+The server room is flooding, the door is jammed, and the only backup of the school website is on the top rack.
+A robotics club Roomba has gained sentience and locked you in the supply closet. It is charging up.
+Your laptop battery is at 1% and the AI controlling the school lockdown needs your password typed in 30 seconds.
+A swarm of drones from the drone-racing team has mistaken you for the finish gate.
+The 3D printer in the lab is printing an endless staircase and you are standing on the last step.
+You fell asleep in the computer lab and woke up locked in after hours. The motion-sensor sprinklers just activated.
+A rogue chatbot has taken over the PA system and challenged you to a debate. Losers get recycled.
+You plugged in a mysterious USB drive and every screen in the building now shows a countdown timer.
+The robotics competition robot has locked onto you as the target and the remote has no batteries.
+The school Wi-Fi router has overheated, caught fire, and is the only thing between you and the exit.
+You are stuck in a crashed VR headset and the simulation is set to "volcano".
+Your group project partner uploaded your consciousness into a spreadsheet. Someone is about to press delete on row 7.
+The AI tutor has decided the final exam is now a game of chess, and every lost piece is a lost limb.
+A power surge fused your hands to the keyboard just as the overheating PC starts to smoke.
+The smart fridge in the teachers' lounge has locked you inside and set itself to deep freeze.
+An escaped class lizard has chewed through the main power cable and you are holding both ends.
+You are on a rooftop during a thunderstorm holding the only metal antenna that restores the school network.
+The self-driving golf cart from the tech fair is driving you straight toward the lake and the brakes are a CAPTCHA.
+Someone ran a deletion command on the computer that controls the school's heating. It is January, and the doors just locked.
+The LAN party extension cords are plugged into each other fourteen deep, and the carpet has started to glow.
+Your code compiled on the first try. The universe has flagged this as a glitch and sent something to fix it.
+The club's AI art generator escaped into the hallway and is turning everyone it sees into a drawing. It just saw you.
+
+## Classic peril
+You're trapped in a sinking submarine with 60 seconds of oxygen left.
+The cafeteria vending machine has tipped forward and you're pinned underneath it. It's still dispensing.
+You're stranded on a melting ice floe with a hungry polar bear and a spork.
+A great white shark is circling your inflatable flamingo, 500 meters from shore.
+You wake up in a coffin buried six feet underground with a phone at 3% battery and no signal.
+An avalanche is roaring down the mountain toward your ski lodge hot tub.
+You are falling from a plane at 10,000 feet and your parachute is a backpack full of library books.
+A volcano is erupting and the only way off the island is a raft made of pool noodles.
+You are in a canoe at the top of a waterfall and your paddle just floated away.
+A zombie horde has surrounded the mall. You are in the food court with a smoothie blender.
+You are lost in the desert at noon with no water, no shade, and a very confident GPS.
+Quicksand is up to your waist and the only thing nearby is a suspicious-looking vine.
+A tornado is lifting your house off the ground with you still inside the bathtub.
+You are stuck at the top of a broken Ferris wheel during a lightning storm.
+A bear has wandered into your campsite and is very interested in your tent full of snacks.
+You are trapped in a giant maze, a minotaur is getting closer, and you dropped the string.
+Your hot air balloon is losing altitude fast over a field of cacti.
+An angry swarm of bees has chased you onto a narrow rope bridge over a canyon.
+You are locked in a bank vault that will open in 48 hours. There is air for 4.
+A giant tidal wave is heading for the beach and you are in the middle of a sandcastle contest.
+You are the last person on a sinking cruise ship and the lifeboats are all gone.
+
+## Space
+Your spacecraft is spinning out of control and the manual is written in a language you do not speak.
+You are floating untethered 30 meters from the space station, and your thruster pack is out of fuel.
+The ship's computer has decided you are a stowaway and will open the airlock in 60 seconds.
+A meteor shower is heading for your Mars greenhouse, and the potatoes are not harvested yet.
+Your lunar rover's battery died 10 kilometers from base, and the sun sets in 20 minutes.
+The space station's oxygen recycler is broken, and the only spare part is inside the last pudding cup.
+You landed on an alien planet where the locals only communicate through interpretive dance. They look hungry.
