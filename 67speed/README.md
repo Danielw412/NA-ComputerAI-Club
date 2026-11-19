@@ -1,8 +1,17 @@
 # 67 SPEED
 
-Browser-based webcam speed challenge for the NA Computer & AI Club. The frontend is React + TypeScript + Vite. Pose detection runs locally in the browser with MediaPipe. Supabase stores the shared leaderboard.
+A browser game for one or two players: pump your arms as fast as you can for 20
+seconds. Your webcam and MediaPipe Pose count every rep, right in the browser.
+Players can post a nickname and score to a shared leaderboard.
 
-Production URL: `https://67.naclubs.net`
+**Play it:** [67.naclubs.net](https://67.naclubs.net)
+
+| | |
+| --- | --- |
+| Built with | React, TypeScript, Vite, Tailwind CSS, MediaPipe Pose, Supabase, Cloudflare Pages |
+| Run it locally | [Run it on your computer](#run-it-on-your-computer) |
+| Main code | [`src/lib/pose/`](src/lib/pose/) counts reps, [`src/game/`](src/game/) runs a round, [`src/components/`](src/components/) draws the screens |
+| More guides | [Where the code lives](#where-the-code-lives), [Privacy and safety](#privacy-and-safety), [Deploying](#production-architecture) |
 
 ## How it works
 
@@ -167,20 +176,49 @@ drawn over it.
 
 ---
 
-## Local development
+## Run it on your computer
+
+Requirements:
+
+- Node.js 22, as pinned in [`.node-version`](.node-version)
+- A webcam, to actually play
+
+From the repository's top folder:
 
 ```bash
+cd 67speed
 npm install
 npm run dev
 ```
 
-Production build:
+Open the `http://localhost:5173` link the terminal prints.
 
-```bash
-npm run build
-```
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Start the game on your computer, reloading when you save a file |
+| `npm test` | Run the pose and leaderboard tests |
+| `npm run build` | Type-check and create the production site in `dist/` |
+| `npm run lint` | Check the code for common mistakes with Oxlint |
+| `npm run tune` | Evaluate rep-counter settings with synthetic signals |
+| `npm run check:db` | Check the configured Supabase leaderboard |
 
-Vite writes the deployable static site to `dist/`.
+The game works without Supabase by keeping the leaderboard in your browser. To
+test the shared leaderboard, copy `.env.example` to `.env.local` and fill in the
+public Supabase URL and publishable key. Never put a secret or service-role key
+in a `VITE_*` variable.
+
+## Privacy and safety
+
+Pose detection runs on the player's device. Camera images, pose landmarks, and
+movement data are never sent to the club. The only optional public submission
+is a leaderboard nickname and game result.
+
+Players should use a nickname that doesn't identify them, and leave the
+leaderboard blank if they are under 13. The in-app Privacy Notice and Terms of
+Use have the current details. Update them whenever data handling changes.
+
+The game involves fast arm movement. Play and test it with enough clear space,
+and stop right away if anyone feels pain, dizziness, or discomfort.
 
 ## Production architecture
 

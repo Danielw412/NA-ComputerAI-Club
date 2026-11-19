@@ -9,6 +9,16 @@ Survivors score points over several rounds.
 
 The project folder is `death-by-ai`. It runs entirely on Cloudflare Workers.
 
+**Play it:** [death-by-ai.nacomputerclub.workers.dev](https://death-by-ai.nacomputerclub.workers.dev)
+(hosting a game needs the club's host password)
+
+| | |
+| --- | --- |
+| Built with | React, TypeScript, Vite, Cloudflare Workers and Durable Objects, Claude API, Workers AI |
+| Run it locally | [Run it on your computer](#run-it-on-your-computer) |
+| Main code | [`src/`](src/) has the screens, [`worker/`](worker/) has the server, [`worker/ai/`](worker/ai/) talks to the AI models |
+| Easiest change | Add a scenario to [`scenarios.txt`](scenarios.txt) |
+
 ## How a round works
 
 1. The host starts a round and everyone sees the scenario. It is one the host
@@ -139,7 +149,7 @@ that scores the plan. If one side falls back, the model that still works decides
 alone; if both do, the two stand-ins are weighed as usual. With the mock
 providers, the whole game runs offline, which is useful for rehearsals.
 
-## Develop
+## Run it on your computer
 
 Requires Node 22.12 or newer. Works on Windows, macOS and Linux.
 
