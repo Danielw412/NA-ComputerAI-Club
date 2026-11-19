@@ -34,6 +34,17 @@ shared Supabase leaderboard.
 
 ## Other projects
 
+### Exit Code
+
+A multiplayer survival party game. Players join from their phones with a
+code, type a plan for a deadly scenario, and watch Claude Haiku reason through
+every plan live on the projector while Cloudflare's Clef casts a second vote on
+who survives.
+
+- [Technical guide](death-by-ai/README.md)
+- [Source](death-by-ai/)
+- Runs on Cloudflare Workers and Durable Objects
+
 ### NA Schedule Share
 
 Share and compare class schedules with other students.
@@ -68,9 +79,10 @@ The desktop 67 SPEED demo uses these controls:
 ## Repository structure
 
 ```text
-67speed/  React and TypeScript web game
-demos/    Standalone Python computer vision demos
-.github/  Continuous integration workflows
+67speed/      React and TypeScript web game
+death-by-ai/  Exit Code, a multiplayer AI party game on Cloudflare Workers
+demos/        Standalone Python computer vision demos
+.github/      Continuous integration workflows
 ```
 
 ## Develop 67 SPEED locally

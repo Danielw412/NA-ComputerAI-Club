@@ -1,0 +1,62 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "death-by-ai",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "observability": { "enabled": true, "redact_query_string": true },
+
+  // The React app is served as static assets; only /api/* reaches the Worker.
+  "assets": {
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+
+  "durable_objects": {
+    "bindings": [{ "name": "ROOMS", "class_name": "GameRoom" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["GameRoom"] }],
+
+  // Ten host sign-in attempts per minute per IP.
+  "ratelimits": [
+    { "name": "LOGIN_LIMITER", "namespace_id": "4101", "simple": { "limit": 10, "period": 60 } }
+  ],
+
+  // Workers AI, used by the Clef decision model. Local dev calls it on your
+  // Cloudflare account too, so set CLOUDFLARE_ACCOUNT_ID when you run `npm run dev`.
+  "ai": { "binding": "AI", "remote": true },
+
+  // Model settings. Both models read each plan at the same time and each decides a
+  // survival chance; the verdict weighs them (JUDGE_WEIGHT below). The narrator (Claude
+  // Haiku 5.5 on the Claude API) streams its reasoning and writes the story. The judge
+  // (Cloudflare's Clef) answers typed questions, and its call is shown as soon as it lands.
+  // Narrator providers: anthropic | openai | openai-responses | gemini | mock
+  // Judge providers: clef | anthropic | openai | openai-responses | gemini | mock
+  // The host picks the narrator's effort (high or xhigh) for each game in the lobby.
+  // Secrets: `npx wrangler secret put NARRATOR_API_KEY` (your Claude API key) and
+  // `npx wrangler secret put HOST_PASSWORD`. Clef needs no key; it uses the AI binding.
+  // Optionally add HOST_SESSION_SECRET (any long random string) to harden host sessions.
+  "vars": {
+    "NARRATOR_PROVIDER": "anthropic",
+    "NARRATOR_MODEL": "claude-haiku-5-5",
+    "NARRATOR_BASE_URL": "",
+    "NARRATOR_REASONING": "high",
+    // Thinking counts toward this, and xhigh thinks a lot.
+    "NARRATOR_MAX_TOKENS": "32000",
+    "JUDGE_PROVIDER": "clef",
+    // Clef Flash is fast and about 6x cheaper on the free Workers AI allowance than
+    // @cf/cloudflare/clef (the larger model, also supported).
+    "JUDGE_MODEL": "@cf/cloudflare/clef-flash",
+    // How much the judge's survival call counts, 0 to 1. The narrator's counts for the rest.
+    "JUDGE_WEIGHT": "0.2",
+    "JUDGE_BASE_URL": "",
+    "AI_TIMEOUT_SECONDS": "90",
+    // Plans judged at once, 1 to 20. Lower it if the Claude API answers 429 (rate limited) for your tier.
+    "AI_CONCURRENCY": "12",
+    // Plans started per run of the room. The Workers Free plan allows 50 outgoing requests per run, and
+    // a plan can use up to 6 (retries included), so 8 is safe there. The rest of a round continues in the
+    // next run. On Workers Paid (10,000 per run) this can go up to 1000.
+    "AI_PLANS_PER_RUN": "8",
+    "HOST_SESSION_HOURS": "12"
+  }
+}

@@ -1,0 +1,43 @@
+name: death-by-ai build
+
+on:
+  pull_request:
+    paths:
+      - 'death-by-ai/**'
+      - '.github/workflows/death-by-ai-build.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'death-by-ai/**'
+      - '.github/workflows/death-by-ai-build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: death-by-ai
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: 'death-by-ai/.node-version'
+          cache: npm
+          cache-dependency-path: 'death-by-ai/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build

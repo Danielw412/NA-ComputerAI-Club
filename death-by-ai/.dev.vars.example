@@ -1,0 +1,10 @@
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+HOST_PASSWORD=change-me
+
+# The real models: Claude Haiku 5.5 narrates, Cloudflare's Clef decides.
+# Clef runs on your Cloudflare account through the AI binding (no key needed).
+NARRATOR_API_KEY=
+
+# Or play offline with the built-in mock models (use `npm run dev:offline`):
+# NARRATOR_PROVIDER=mock
+# JUDGE_PROVIDER=mock

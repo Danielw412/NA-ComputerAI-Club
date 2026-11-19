@@ -1,0 +1,1184 @@
+/*
+ * Exit Code design tokens.
+ * Colors are the club logo's own: paper, ink and the logo gold (#FAAA13).
+ * Gold is only ever a fill (with ink text on it), never text on paper.
+ * The 45° chamfer and the diagonal wipe both come from the logo's cut corners.
+ */
+:root {
+  --paper: #ffffff;
+  --ink: #000000;
+  --gold: #faaa13;
+  --steel: #666666;
+  --rule: #e4e4e4;
+  --wash: #f4f4f4;
+
+  --font-display: 'Chakra Petch', 'Segoe UI', system-ui, sans-serif;
+  --font-text: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-trace: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --gutter: 16px;
+  --tap: 56px;
+
+  color-scheme: light;
+}
+
+@property --cut {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 12px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 17px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+  /* Player text can be one long word; break it rather than overflow a phone. */
+  overflow-wrap: break-word;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  touch-action: manipulation;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ type */
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+}
+
+.numeric {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.quiet {
+  color: var(--steel);
+}
+
+.title-xl {
+  font-size: clamp(44px, 12vw, 64px);
+}
+
+.title-l {
+  font-size: clamp(32px, 8vw, 44px);
+}
+
+.title-m {
+  font-size: 26px;
+  line-height: 1.15;
+}
+
+.lede {
+  font-size: 19px;
+  line-height: 1.45;
+  max-width: 34ch;
+}
+
+.small {
+  font-size: 15px;
+}
+
+/* ------------------------------------------------------------ chrome */
+
+.logo {
+  display: block;
+  flex: none;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 40px;
+}
+
+.bar-end {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  text-align: right;
+}
+
+/* ------------------------------------------------------------ buttons */
+
+.btn {
+  --cut: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: var(--tap);
+  padding: 0 28px;
+  border: 0;
+  background: linear-gradient(135deg, transparent var(--cut), var(--ink) calc(var(--cut) + 0.5px));
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  user-select: none;
+  transition: --cut 220ms var(--ease-out), opacity 150ms;
+}
+
+.btn:hover {
+  --cut: 20px;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+  --cut: 12px;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, transparent var(--cut), var(--gold) calc(var(--cut) + 0.5px));
+  color: var(--ink);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.link {
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.link:hover {
+  text-decoration-thickness: 2px;
+}
+
+.link-quiet {
+  color: var(--steel);
+}
+
+/* ------------------------------------------------------------ fields */
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field-label {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.input {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 12px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  font-size: 19px;
+  appearance: none;
+}
+
+.input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--gold);
+}
+
+.input-code {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  font-variant-numeric: tabular-nums;
+  padding-block: 6px;
+}
+
+.input-code::placeholder {
+  color: #c8c8c8;
+}
+
+.textarea {
+  min-height: 9.5em;
+  resize: none;
+  line-height: 1.45;
+}
+
+.form-error {
+  min-height: 1.5em;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.form-error:not(:empty)::before {
+  content: '';
+  display: inline-block;
+  width: 0.6em;
+  height: 0.6em;
+  margin-right: 0.5em;
+  background: var(--ink);
+}
+
+/* ------------------------------------------------------------ phone layout */
+
+.phone {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  padding: max(var(--gutter), env(safe-area-inset-top)) max(var(--gutter), env(safe-area-inset-right))
+    max(var(--gutter), env(safe-area-inset-bottom)) max(var(--gutter), env(safe-area-inset-left));
+}
+
+.phone-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-block: 32px 24px;
+}
+
+.phone-body-center {
+  justify-content: center;
+}
+
+.phone-foot {
+  display: grid;
+  gap: 12px;
+}
+
+.stack {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ------------------------------------------------------------ host layout */
+
+.host {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: clamp(16px, 2.6vw, 44px) clamp(16px, 3.6vw, 64px);
+  gap: clamp(16px, 2.4vw, 40px);
+}
+
+.host-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 30%);
+  gap: clamp(24px, 4vw, 72px);
+  align-items: start;
+  min-height: 0;
+}
+
+.host-aside {
+  display: grid;
+  gap: 24px;
+  align-content: start;
+}
+
+.host-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.host-foot-end {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-left: auto;
+}
+
+.host-title {
+  font-size: clamp(36px, 4.6vw, 84px);
+  max-width: 20ch;
+  text-wrap: balance;
+}
+
+.host-text {
+  font-size: clamp(19px, 1.7vw, 30px);
+  line-height: 1.45;
+  max-width: 40ch;
+}
+
+.host-meta {
+  font-size: clamp(15px, 1.15vw, 20px);
+}
+
+@media (max-width: 860px) {
+  .host-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------ join code */
+
+.code {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.code-hero {
+  font-size: clamp(88px, 13vw, 240px);
+}
+
+.join-panel {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.qr {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+/* ------------------------------------------------------------ lobby names */
+
+.names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.name {
+  --cut: 10px;
+  position: relative;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 18px 0 22px;
+  background: linear-gradient(135deg, transparent var(--cut), var(--wash) calc(var(--cut) + 0.5px));
+  font-family: var(--font-display);
+  font-size: clamp(18px, 1.5vw, 26px);
+  font-weight: 600;
+  animation: pop 420ms var(--ease-out) both;
+}
+
+.name-off {
+  color: var(--steel);
+}
+
+.name-button {
+  border: 0;
+  cursor: pointer;
+  transition: --cut 200ms var(--ease-out);
+}
+
+.name-button:hover {
+  --cut: 16px;
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+.name-done {
+  background: linear-gradient(135deg, transparent var(--cut), var(--gold) calc(var(--cut) + 0.5px));
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+}
+
+/* ------------------------------------------------------------ settings */
+
+/* Short projectors (720p): a smaller code and tighter settings keep the whole lobby on screen. */
+@media (max-height: 800px) {
+  .host {
+    padding-block: 20px;
+    gap: 20px;
+  }
+
+  .code-hero {
+    font-size: clamp(72px, 10vw, 150px);
+  }
+
+  .join-panel {
+    gap: 12px;
+  }
+
+  .settings {
+    row-gap: 4px;
+  }
+}
+
+/* Two columns of settings on wide screens keep the lobby inside a 720p projector. */
+.settings {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  gap: 12px 56px;
+  margin-top: 16px;
+}
+
+@media (max-width: 1100px) {
+  .settings {
+    grid-template-columns: max-content;
+  }
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.choice-label {
+  margin-right: 12px;
+}
+
+.choice-option {
+  min-width: 52px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: inset 0 -2px 0 var(--rule);
+  transition: box-shadow 160ms;
+}
+
+.choice-option:hover {
+  box-shadow: inset 0 -2px 0 var(--steel);
+}
+
+.choice-option[aria-pressed='true'] {
+  box-shadow: inset 0 -4px 0 var(--ink);
+}
+
+/* ------------------------------------------------------------ scenario picker */
+
+.sheet {
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.sheet[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  animation: sheet-in 360ms var(--ease-out) both;
+}
+
+.sheet::backdrop {
+  background: var(--paper);
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+.sheet-head,
+.sheet-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 32px;
+  flex-wrap: wrap;
+  padding: clamp(16px, 2.6vw, 44px) clamp(16px, 3.6vw, 64px) 20px;
+}
+
+.sheet-head {
+  border-bottom: 1px solid var(--rule);
+}
+
+.sheet-foot {
+  align-items: center;
+  padding-top: 16px;
+  padding-bottom: clamp(16px, 2.6vw, 44px);
+  border-top: 1px solid var(--rule);
+}
+
+.sheet-own {
+  display: flex;
+  gap: 8px;
+  width: min(100%, 560px);
+}
+
+.sheet-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 clamp(16px, 3.6vw, 64px) 32px;
+}
+
+.scenario-group {
+  padding-top: 28px;
+}
+
+.scenario-group-name {
+  margin-bottom: 4px;
+  font-size: 20px;
+}
+
+.scenario-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr));
+  column-gap: 40px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scenario {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  width: 100%;
+  height: 100%;
+  padding: 14px 0;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  background: none;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+}
+
+.scenario-mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-top: -2px;
+  box-shadow: inset 0 0 0 2px var(--rule);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  transition: box-shadow 160ms, background-color 160ms;
+}
+
+.scenario:hover .scenario-mark {
+  box-shadow: inset 0 0 0 2px var(--steel);
+}
+
+.scenario[aria-pressed='true'] .scenario-mark {
+  background: var(--gold);
+  box-shadow: none;
+  animation: mark-pop 280ms var(--ease-out);
+}
+
+/* Picked, but past the last round, so it won't play. */
+.scenario-spare[aria-pressed='true'] .scenario-mark {
+  background: var(--wash);
+  color: var(--steel);
+}
+
+.scenario:disabled {
+  color: var(--steel);
+  cursor: not-allowed;
+}
+
+.scenario:disabled .scenario-mark {
+  box-shadow: inset 0 0 0 2px var(--wash);
+}
+
+@keyframes mark-pop {
+  from {
+    transform: scale(0.6);
+  }
+}
+
+/* ------------------------------------------------------------ timer */
+
+.timebar {
+  position: relative;
+  height: 6px;
+  background: var(--wash);
+  overflow: hidden;
+}
+
+.timebar-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform-origin: left center;
+}
+
+.timebar-low .timebar-fill {
+  background: var(--gold);
+}
+
+.countdown {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------ reasoning trace */
+
+.trace {
+  margin: 0;
+  font-family: var(--font-trace);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--steel);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.trace-scroll {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule) transparent;
+}
+
+.trace-fade {
+  mask-image: linear-gradient(to bottom, transparent, #000 2.5em);
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.62em;
+  height: 1.15em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--gold);
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--rule);
+  flex: none;
+}
+
+.status-live .status-dot {
+  background: var(--gold);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.status-done .status-dot {
+  background: var(--ink);
+}
+
+/*
+ * Judging grid: hairline rules, not cards. The host screen is fixed to the
+ * viewport during judging, so lanes shrink to fit any room size and each
+ * trace stays pinned to its newest lines.
+ */
+.host-fit {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.judging {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 16px;
+  min-height: 0;
+}
+
+.lanes {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  /* Rows share the screen but never get too short to show a line of trace. */
+  grid-auto-rows: minmax(84px, 1fr);
+  column-gap: clamp(16px, 2.2vw, 48px);
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.lane {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 8px;
+  min-height: 0;
+  padding: 16px 0 12px;
+  border-top: 1px solid var(--rule);
+  overflow: hidden;
+}
+
+.lane > .trace-scroll {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.lanes-dense .lane {
+  /* The name always keeps room; the status and chip take what's left. */
+  grid-template-columns: minmax(6ch, 1fr) minmax(0, auto);
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 12px;
+}
+
+.lanes-dense .lane > .trace-scroll {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 760px) {
+  .host-fit {
+    height: auto;
+    overflow: visible;
+  }
+
+  .lanes {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+  }
+
+  .lane {
+    max-height: 220px;
+  }
+}
+
+.lane-name {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 1.6vw, 28px);
+  font-weight: 600;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* In dense lanes the stage is just its dot, so the name and the chip both fit. */
+.lanes-dense .status-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.lane-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+/* One model's live survival call. Ink on wash: it informs, the verdict band is the moment. */
+.decision-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--wash);
+  font-family: var(--font-trace);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: nowrap;
+  animation: chip-in 420ms var(--ease-out) both;
+}
+
+@keyframes chip-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+
+.lane .trace {
+  font-size: clamp(12px, 0.9vw, 15px);
+}
+
+/* ------------------------------------------------------------ verdict */
+
+.verdict {
+  --h: 84px;
+  --chamfer: calc(var(--h) * 0.28);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: var(--h);
+  padding: 0 calc(var(--h) * 0.3) 0 calc(var(--h) * 0.42);
+  /*
+   * A 45° leading edge sweeps across, and the logo's chamfer stays on the
+   * top-left corner. Polygons interpolate point by point, so no @property needed.
+   */
+  clip-path: polygon(var(--chamfer) 0, calc(100% + var(--h)) 0, 100% 100%, 0 100%, 0 var(--chamfer));
+  animation: wipe 760ms var(--ease-out) both;
+}
+
+.verdict-survived {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.verdict-died {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.verdict-word {
+  font-family: var(--font-display);
+  font-size: calc(var(--h) * 0.52);
+  font-weight: 700;
+  line-height: 1;
+  animation: slide 760ms 140ms var(--ease-out) both;
+}
+
+.verdict-points {
+  font-family: var(--font-display);
+  font-size: calc(var(--h) * 0.3);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  animation: slide 760ms 240ms var(--ease-out) both;
+}
+
+.verdict-host {
+  --h: clamp(104px, 13vh, 168px);
+}
+
+@keyframes wipe {
+  from {
+    clip-path: polygon(0 0, 0 0, calc(0% - var(--h)) 100%, 0 100%, 0 var(--chamfer));
+  }
+}
+
+@keyframes slide {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+
+/* ------------------------------------------------------------ reveal */
+
+.plan-quote {
+  margin: 0;
+  overflow-wrap: anywhere;
+  padding-left: 18px;
+  border-left: 4px solid var(--ink);
+  font-size: clamp(18px, 1.5vw, 26px);
+  font-weight: 500;
+  line-height: 1.4;
+  max-width: 44ch;
+}
+
+.story {
+  font-size: clamp(19px, 1.75vw, 31px);
+  line-height: 1.48;
+  max-width: 42ch;
+}
+
+.word {
+  animation: word-in 260ms var(--ease-out) both;
+}
+
+@keyframes word-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.reason {
+  font-size: clamp(15px, 1.15vw, 20px);
+  color: var(--steel);
+  max-width: 52ch;
+}
+
+.reason-meta {
+  margin-top: 4px;
+  font-family: var(--font-trace);
+  font-size: 0.8em;
+}
+
+.reveal-trace {
+  max-height: 62vh;
+}
+
+/* ------------------------------------------------------------ standings */
+
+.standings {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule);
+}
+
+.standing {
+  display: grid;
+  grid-template-columns: 2.4em minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: clamp(12px, 2vw, 32px);
+  min-height: clamp(44px, 5.8vh, 72px);
+  border-bottom: 1px solid var(--rule);
+  font-size: clamp(18px, 1.7vw, 30px);
+  background: var(--paper);
+}
+
+.standing-rank {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--steel);
+  font-variant-numeric: tabular-nums;
+}
+
+.standing-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.standing-score {
+  min-width: 4ch;
+  text-align: right;
+}
+
+.standing-you {
+  box-shadow: inset 4px 0 0 var(--gold);
+  padding-left: 12px;
+}
+
+.tally {
+  display: flex;
+  gap: 4px;
+}
+
+.tally-cell {
+  width: 0.5em;
+  height: 0.5em;
+  box-shadow: inset 0 0 0 2px var(--rule);
+}
+
+.tally-survived {
+  background: var(--gold);
+  box-shadow: none;
+}
+
+.tally-died {
+  background: var(--ink);
+  box-shadow: none;
+}
+
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: clamp(12px, 2vw, 32px);
+}
+
+.podium-place {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  display: grid;
+  gap: 14px;
+  align-content: end;
+  animation: rise 900ms var(--ease-out) both;
+}
+
+.podium-block {
+  --cut: clamp(14px, 1.6vw, 28px);
+  display: flex;
+  align-items: flex-start;
+  padding: clamp(12px, 1.4vw, 24px);
+  background: linear-gradient(135deg, transparent var(--cut), var(--wash) calc(var(--cut) + 0.5px));
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4vw, 72px);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.podium-first .podium-block {
+  background: linear-gradient(135deg, transparent var(--cut), var(--gold) calc(var(--cut) + 0.5px));
+}
+
+/* Short projectors keep the podium and buttons on screen; the runners-up list goes first. */
+@media (max-height: 760px) {
+  .final-rest {
+    display: none;
+  }
+
+  .standings-capped .standing:nth-child(n + 9) {
+    display: none;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+}
+
+/* ------------------------------------------------------------ misc */
+
+.enter {
+  animation: enter 520ms var(--ease-out) both;
+}
+
+.enter-late {
+  animation-delay: 120ms;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.notice::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--gold);
+  animation: blink 1s steps(1) infinite;
+}
+
+.divider {
+  height: 1px;
+  background: var(--rule);
+  border: 0;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
